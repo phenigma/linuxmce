@@ -15,6 +15,7 @@ http_media_host="www.linuxmce.org"
 
 # needs a better name
 base_dir=/home/samba/www_docs
+extra_dir=/var/lmce-build/extras
 
 . /etc/lmce-build/builder.conf
 
@@ -55,81 +56,84 @@ function ImportPublicMediaFromRSyncHost {
 }
 
 
-function DownloadIfNeeded {
+
+function DownloadIfNeeded
+{
 	local host=$1
 	local filepath=$2
 	local filename=$3
 
-	local md5_cur="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+	local md5_old=""
+	local md5_cur=""
+	local md5_new=""
 
 
 	mkdir -p "$filepath"
 	pushd "$filepath"
 
-		# move current md5sum file out of the way
+
+		# get old md5sum from file or calculate from file
 		if [ -e "${filename}.md5.txt" ]
 		then
-			mv -f "${filename}.md5.txt" "${filename}.last.md5.txt"
+			md5_old=$(cat "${filename}.md5.txt")
+
+		elif [ -e "${filename}" ]
+		then
+			md5_old=$(md5sum ${filename})
 		fi
 
-		# get current md5sum from file
-		if [ -e "${filename}.last.md5.txt" ]
+		# get current md5sum file
+		rm -f "${filename}.md5.txt"
+	     	wget -q http://$host/build/${filename}.md5.txt
+		md5_cur=$(cat "${filename}.md5.txt")
+
+		if [ "${md5_old}" != "${md5_cur}" ]
 		then
-			md5_cur=$(cat "${filename}.last.md5.txt")
-		fi
-
-		# get new md5sum file
-	     	wget http://$host/build/${filename}.md5.txt
-
-		# get new md5sum from file
-		local md5_new=$(cat "${filename}.md5.txt")
-
-		if [ "$md5_cur" != "$md5_new" ]
-		then
-			
 			# move old file out of the way
-			mv -f "${filename}" "${filename}.last"
+			if [ -e "${filename}" ]
+			then
+				mv -fv "${filename}" "${filename}.last"
+			fi
 
 			# download new file
 			wget http://$host/build/${filename}
 
-			# calculate it's md5sum
-			md5_cur=$(md5sum ${filename})
+			# calculate new md5sum from file
+			md5_new=$(md5sum ${filename})
 
-			if [ "$md5_cur" = "$md5_new" ]
+			if [ "${md5_cur}" = "${md5_new}" ]
 			then
-
-				# remove old files
-				rm -f "${filename}.last" "${filename}.last.md5.txt"
-
+				# remove old file
+				rm -fv "${filename}.last"
 			else
+				echo "WARNING: Downloaded file: http://$host/build/${filename} does not match md5sum."
+				rm -f "${filename}.md5.txt"
 
-				rm -f "${filename}" "${filename}.md5.txt"
-
-				# restore old files if they exist
+				# restore old file
 				if [ -e "${filename}.last" ]
 				then
-					mv -f "${filename}.last" "${filename}"
-					mv -f "${filename}.last.md5.txt" "${filename}.md5.txt"
+					mv -fv "${filename}.last" "${filename}"
+					md5_cur="${md5_old}"
 				fi
-
 			fi
-
 		fi
+
 
 	popd
 
-	return $(test "$md5_cur" = "$md5_new")
+	return $(test "${md5_old}" != "${md5_cur}")
 }
 
 
 function ImportPublicSkinFromHTTPHost {
 	local skins_dir="${base_dir}/graphics"
 
-	if DownloadIfNeeded $http_skin_host "${base_dir}" "graphics.tbz" ; then
+	if DownloadIfNeeded $http_skin_host "${base_dir}" "graphics.tbz"
+	then
+		echo "Unpacking graphics.tbz in ${base_dir}"
 		pushd "${base_dir}"
 			rm -rf "graphics"
-			tar xvfj "graphics.tbz"
+			tar xjf "graphics.tbz"
 		popd
 
 # we don't want this on a lmce machine
@@ -137,33 +141,54 @@ function ImportPublicSkinFromHTTPHost {
 #		mkdir -p /usr/pluto/orbiter/
 #		ln -s "/home/samba/www_docs/graphics" /usr/pluto/orbiter/skins
 #		pushd /usr/pluto/orbiter/skins
+		echo "Copying LinuxMCE skins to ${skins_dir}/Basic/"
 		pushd "${skins_dir}"
 			cp -r LinuxMCE/* Basic/
 		popd
 
 		pushd "${build_dir}"
 			rm -f samba
-			ln -s /home/samba samba
+			ln -sv /home/samba samba
 		popd
 	fi
 }
 
 
 function ImportPublicMediaFromHTTPHost {
-	if DownloadIfNeeded $http_media_host "${base_dir}" "sample_media.tbz" ; then
+	if DownloadIfNeeded $http_media_host "${base_dir}" "sample_media.tbz" 
+	then
+		echo "Unpacking sample_media.tbz"
 		pushd "${base_dir}"
 			rm -rf "sample media"
-			tar xvfj "sample_media.tbz"
+			tar xjf "sample_media.tbz"
 		popd
 	fi
 }
 
 function ImportWizardVideosFromHTTPHost {
-	if DownloadIfNeeded "$http_media_host" "/var/lmce-build/extras/" video-wizard-videos.tar ; then
-		pushd /var/lmce-build/extras/
+	if DownloadIfNeeded "$http_media_host" "${extra_dir}" video-wizard-videos.tar
+	then
+		echo "Unpacking video-wizard-videos.tar"
+		pushd ${extra_dir}
 			rm -rf video-wizard-videos
 			tar xf video-wizard-videos.tar
+			echo "Creating video-wizard-videos debian package"
 			pushd video-wizard-videos
+				dpkg-deb -b . ..
+			popd
+		popd
+	fi
+}
+
+function ImportAVWizardSoundsFromHTTPHost {
+	if DownloadIfNeeded "$http_media_host" "${extra_dir}" pluto-avwizard-sounds_1.1.tar.bz2
+	then
+		echo "Unpacking pluto-avwizard-sounds_1.1.tar.bz2"
+		pushd ${extra_dir}
+			rm -rf pluto-avwizard-sounds
+			tar xjf pluto-avwizard-sounds_1.1.tar.bz2
+			echo "Creating pluto-avwizard-sounds debian package"
+			pushd pluto-avwizard-sounds
 				dpkg-deb -b . ..
 			popd
 		popd
@@ -179,6 +204,7 @@ function IsReachable {
 	fi
 	return $(false)
 }
+
 
 # Import skin
 if IsReachable "$rsync_skin_host" "rsync skin host" ; then
@@ -200,10 +226,19 @@ else
 	echo "If you don't have them already, cd2-build.sh will fail."
 fi
 
-# Import videos
-if IsReachable "$http_media_host" "http media host" ; then
+
+if IsReachable "$http_media_host" "http media host"
+then
+	# Import videos
 	ImportWizardVideosFromHTTPHost
+
+	# Import sounds
+	ImportAVWizardSoundsFromHTTPHost
+else
+	echo "Failed to download videos and sounds."
+	echo "If you don't have them already, the build will likely fail."
 fi
+
 
 echo "*** Done: $0"
 

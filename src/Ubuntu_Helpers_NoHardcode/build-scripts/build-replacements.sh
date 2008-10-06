@@ -166,8 +166,11 @@ function Build_Replacements_Common {
 		cp /usr/src/alsa-modules-*.deb "${replacements_dir}"
 	fi
 
-	#Package: pluto-avwizard-sounds
-	Build_Replacement_Package pluto-avwizard-sounds src/pluto-avwizard-sounds
+### Now done in prepare-scripts/import-external-files.sh, 
+###  this here and src/pluto-avwizard-sounds can be removed
+#	#Package: pluto-avwizard-sounds
+#	Build_Replacement_Package pluto-avwizard-sounds src/pluto-avwizard-sounds
+
 	#Package: asterisk-perl
 	Build_Replacement_Package asterisk-perl external/asterisk-perl-0.10
 
