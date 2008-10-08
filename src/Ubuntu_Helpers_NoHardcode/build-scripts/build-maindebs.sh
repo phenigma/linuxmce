@@ -7,11 +7,20 @@
 set -e
 #set -x
 
-BuildCred=""
-if [ "$sql_build_host" ] ; then BuildCred="$BuildCred -h $sql_build_host"; fi
-if [ "$sql_build_port" ] ; then BuildCred="$BuildCred -P $sql_build_port"; fi
-if [ "$sql_build_user" ] ; then BuildCred="$BuildCred -u $sql_build_user"; fi
-if [ "$sql_build_pass" ] ; then BuildCred="$BuildCred -p $sql_build_pass"; fi
+PLUTO_BUILD_CRED=""
+if [ "$sql_build_host" ] ; then PLUTO_BUILD_CRED="$PLUTO_BUILD_CRED -h $sql_build_host"; fi
+if [ "$sql_build_port" ] ; then PLUTO_BUILD_CRED="$PLUTO_BUILD_CRED -P $sql_build_port"; fi
+if [ "$sql_build_user" ] ; then PLUTO_BUILD_CRED="$PLUTO_BUILD_CRED -u $sql_build_user"; fi
+if [ "$sql_build_pass" ] ; then PLUTO_BUILD_CRED="$PLUTO_BUILD_CRED -p $sql_build_pass"; fi
+export PLUTO_BUILD_CRED
+
+MYSQL_BUILD_CRED=""
+if [ "$sql_build_host" ] ; then MYSQL_BUILD_CRED="$MYSQL_BUILD_CRED -h$sql_build_host"; fi
+if [ "$sql_build_port" ] ; then MYSQL_BUILD_CRED="$MYSQL_BUILD_CRED -P$sql_build_port"; fi
+if [ "$sql_build_user" ] ; then MYSQL_BUILD_CRED="$MYSQL_BUILD_CRED -u$sql_build_user"; fi
+if [ "$sql_build_pass" ] ; then MYSQL_BUILD_CRED="$MYSQL_BUILD_CRED -p$sql_build_pass"; fi
+export MYSQL_BUILD_CRED
+
 
 function build_main_debs() {
 	export PATH=$PATH:${svn_dir}/${svn_branch_name}/src/bin
