@@ -64,9 +64,19 @@ public:
 	bool HasPrimaryKeys();
 
 	/**
+        * @brief returns true if table has the specified field 
+	*/ 
+	bool HasField(string sFieldName); 
+
+	/**  
 	 * @brief returns the table name
 	 */
 	string get_table_name();
+
+        /* 
+	*      @brief return a pointer to db 
+	*/ 
+	MYSQL *db() { return m_pDB; } 
 
 
 	virtual ~TableInfo() {}

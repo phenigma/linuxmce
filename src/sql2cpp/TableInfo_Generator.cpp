@@ -512,7 +512,7 @@ string TableInfo_Generator::get_set_default_values()
 		else
 			if ((*i)->getCType() == "string")
 			{
-				unsigned long max_length = strlen((*i)->m_pcFieldDefaultValue)*2 + 1;
+				unsigned long max_length = (unsigned long)(strlen((*i)->m_pcFieldDefaultValue)*2 + 1);
 				
 				char *to = new char[max_length];
 				if (max_length>1)

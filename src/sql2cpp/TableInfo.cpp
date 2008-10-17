@@ -48,6 +48,15 @@ bool TableInfo::loadFromDB( string sTable )
 		return false;	
 }
 
+bool TableInfo::HasField(string sFieldName)
+{
+	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++ )
+		if(sFieldName == (*i)->m_pcFieldName)
+			return true;
+
+	return false; 
+}
+
 bool TableInfo::HasPrimaryKeys()
 {
 	for ( vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++ )
