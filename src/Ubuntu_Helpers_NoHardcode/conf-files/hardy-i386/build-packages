@@ -96,9 +96,9 @@ libxine-dev
 libxmu-headers
 libxrender-dev
 libxtst-dev
-linux-headers-2.6.24-19-generic
-linux-image-2.6.24-19-generic
-linux-restricted-modules-2.6.24-19-generic
+linux-headers-2.6.24-21-generic
+linux-image-2.6.24-21-generic
+linux-restricted-modules-2.6.24-21-generic
 linux-source-2.6.24
 lirc-modules-source
 mkisofs
