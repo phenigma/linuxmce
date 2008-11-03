@@ -160,7 +160,8 @@ is_null[14] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[15] = false;
-is_null[16] = true;
+m_psc_mod = "0000-00-00 00:00:00";
+is_null[16] = false;
 is_null[17] = true;
 m_psc_restrict = 0;
 
@@ -324,9 +325,6 @@ return is_null[14];}
 bool Row_CoverArtScan::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[15];}
-bool Row_CoverArtScan::psc_mod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-
-return is_null[16];}
 bool Row_CoverArtScan::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[17];}
@@ -386,10 +384,6 @@ is_modified=true;
 }
 void Row_CoverArtScan::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[15]=val;
-is_modified=true;
-}
-void Row_CoverArtScan::psc_mod_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-is_null[16]=val;
 is_modified=true;
 }
 void Row_CoverArtScan::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);

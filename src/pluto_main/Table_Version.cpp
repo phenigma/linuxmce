@@ -33,6 +33,7 @@ using namespace std;
 #include "Table_Version.h"
 
 #include "Table_Installation.h"
+#include "Table_Package_Version.h"
 #include "Table_Schema.h"
 
 
@@ -156,7 +157,8 @@ is_null[12] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[13] = false;
-is_null[14] = true;
+m_psc_mod = "0000-00-00 00:00:00";
+is_null[14] = false;
 is_null[15] = true;
 m_psc_restrict = 0;
 
@@ -299,9 +301,6 @@ return is_null[12];}
 bool Row_Version::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[13];}
-bool Row_Version::psc_mod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-
-return is_null[14];}
 bool Row_Version::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[15];}
@@ -349,10 +348,6 @@ is_modified=true;
 }
 void Row_Version::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[13]=val;
-is_modified=true;
-}
-void Row_Version::psc_mod_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-is_null[14]=val;
 is_modified=true;
 }
 void Row_Version::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
@@ -1301,6 +1296,13 @@ void Row_Version::Installation_FK_Version_getrows(vector <class Row_Installation
 PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("`FK_Version`=" + StringUtils::itos(m_PK_Version),rows);
+}
+void Row_Version::Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows)
+{
+PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
+
+class Table_Package_Version *pTable = table->database->Package_Version_get();
 pTable->GetRows("`FK_Version`=" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Schema_FK_Version_getrows(vector <class Row_Schema*> *rows)

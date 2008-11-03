@@ -172,7 +172,6 @@ bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
-bool psc_mod_isNull();
 bool psc_restrict_isNull();
 
 			
@@ -190,7 +189,6 @@ void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
-void psc_mod_setNull(bool val);
 void psc_restrict_setNull(bool val);
 	
 	
@@ -222,6 +220,7 @@ void Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *row
 void Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows);
 void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows);
 void Package_Users_FK_Package_getrows(vector <class Row_Package_Users*> *rows);
+void Package_Version_FK_Package_getrows(vector <class Row_Package_Version*> *rows);
 void PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows);
 void PaidLicense_FK_Package_getrows(vector <class Row_PaidLicense*> *rows);
 void QuickStartTemplate_FK_Package_getrows(vector <class Row_QuickStartTemplate*> *rows);

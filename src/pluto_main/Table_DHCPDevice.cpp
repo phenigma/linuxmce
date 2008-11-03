@@ -164,7 +164,8 @@ is_null[15] = true;
 m_psc_user = 0;
 m_psc_frozen = 0;
 is_null[16] = false;
-is_null[17] = true;
+m_psc_mod = "0000-00-00 00:00:00";
+is_null[17] = false;
 is_null[18] = true;
 m_psc_restrict = 0;
 
@@ -334,9 +335,6 @@ return is_null[15];}
 bool Row_DHCPDevice::psc_frozen_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[16];}
-bool Row_DHCPDevice::psc_mod_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-
-return is_null[17];}
 bool Row_DHCPDevice::psc_restrict_isNull() {PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 
 return is_null[18];}
@@ -398,10 +396,6 @@ void Row_DHCPDevice::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(s
 is_null[16]=val;
 is_modified=true;
 }
-void Row_DHCPDevice::psc_mod_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
-is_null[17]=val;
-is_modified=true;
-}
 void Row_DHCPDevice::psc_restrict_setNull(bool val){PLUTO_SAFETY_LOCK_ERRORSONLY(sl,table->database->m_DBMutex);
 is_null[18]=val;
 is_modified=true;
@@ -442,7 +436,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%llu", m_Mac_Range_Low);
+sprintf(buf, "%I64i", m_Mac_Range_Low);
 
 return buf;
 }
@@ -455,7 +449,7 @@ if (is_null[3])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%llu", m_Mac_Range_High);
+sprintf(buf, "%I64i", m_Mac_Range_High);
 
 return buf;
 }
@@ -933,7 +927,7 @@ pRow->m_Mac_Range_Low = 0;
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%llu", &(pRow->m_Mac_Range_Low));
+sscanf(row[2], "%I64i", &(pRow->m_Mac_Range_Low));
 }
 
 if (row[3] == NULL)
@@ -944,7 +938,7 @@ pRow->m_Mac_Range_High = 0;
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%llu", &(pRow->m_Mac_Range_High));
+sscanf(row[3], "%I64i", &(pRow->m_Mac_Range_High));
 }
 
 if (row[4] == NULL)
@@ -1258,7 +1252,7 @@ pRow->m_Mac_Range_Low = 0;
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%llu", &(pRow->m_Mac_Range_Low));
+sscanf(row[2], "%I64i", &(pRow->m_Mac_Range_Low));
 }
 
 if (row[3] == NULL)
@@ -1269,7 +1263,7 @@ pRow->m_Mac_Range_High = 0;
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%llu", &(pRow->m_Mac_Range_High));
+sscanf(row[3], "%I64i", &(pRow->m_Mac_Range_High));
 }
 
 if (row[4] == NULL)
