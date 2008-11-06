@@ -22,8 +22,7 @@ if ! grep -qF "$slim_repo" /etc/apt/sources.list; then
 fi
 
 pushd "${build_dir}/cd1-packages"
-	aptitude download `cat /etc/lmce-build/cd1-packages` || echo "downloading cd1-packages failed"
-
+	aptitude download `cat /etc/lmce-build/cd1-packages`
 popd
 
 echo "*** Done: $0"
