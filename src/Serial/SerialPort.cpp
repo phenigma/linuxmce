@@ -17,6 +17,8 @@
 
  */
 #include "SerialPort.h"
+#include <cstdlib>
+#include <cstring>
 
 #ifdef WIN32
 

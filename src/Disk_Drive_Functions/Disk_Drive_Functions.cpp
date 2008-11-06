@@ -44,6 +44,8 @@ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more detai
 #include <sys/mount.h>
 #endif
 
+#include <limits.h>
+
 #include <sstream>
 using namespace std;
 

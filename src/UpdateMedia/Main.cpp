@@ -34,6 +34,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <algorithm>
 
 #ifdef WIN32
 #include <direct.h>

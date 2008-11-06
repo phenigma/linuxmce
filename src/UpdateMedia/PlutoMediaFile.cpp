@@ -29,6 +29,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <algorithm>
 
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
