@@ -58,6 +58,7 @@ void *ZWApi::ZWApi::init(const char *device) {
         callbackpool = 1;
         ournodeid = -1;
         await_ack = 0;
+	poll_state = 1;
 
  	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Open serial port %s",device);
 	OpenSerialPortEx(device,&serialPort);
@@ -975,16 +976,16 @@ void *ZWApi::ZWApi::receiveFunction() {
 				
 			} else {
 				idletimer++;
-				if ((idletimer % 100) == 0) {
-					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "IDLE timer: %i",idletimer);
+				//if ((idletimer % 100) == 0) {
+				//	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "IDLE timer: %i",idletimer);
 
-				}
+				//}
 
 			}
 			pthread_mutex_unlock (&mutexSendQueue);
 
 			// we have been idle for 30 seconds, let's poll the devices
-			if (idletimer > 300) {
+			if ((idletimer > 300) && poll_state) {
 				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "We have been idle for %i seconds, polling device states", idletimer / 10);
 				zwRequestBasicReport(NODE_BROADCAST);
 			}
@@ -1483,4 +1484,8 @@ void ZWApi::ZWApi::zwStatusReport() {
 //		zwReadMemory(64*i);
 //	}
 //	zwRequestBasicReport(NODE_BROADCAST);
+}
+
+void ZWApi::ZWApi::zwPollDevices(bool onoff) {
+	poll_state = onoff;
 }

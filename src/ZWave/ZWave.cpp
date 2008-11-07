@@ -350,12 +350,14 @@ void ZWave::CMD_Set_Polling_State(int iPK_Device,string sValue_To_Assign,bool bR
 //<-dceag-c966-e->
 
 {
-        cout << "Need to implement command #966 - Set Polling State" << endl;
-        cout << "Parm #2 - PK_Device=" << iPK_Device << endl;
-        cout << "Parm #5 - Value_To_Assign=" << sValue_To_Assign << endl;
-        cout << "Parm #220 - Report=" << bReport << endl;
-        cout << "Parm #225 - Always=" << bAlways << endl;
-        cout << "Parm #239 - NodeID=" << iNodeID << endl;
+	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #966 - Set Polling State");
+	if (sValue_To_Assign.find('0') != std::string::npos) {
+		LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Deactivating polling");
+		myZWApi->zwPollDevices(false);
+	} else {
+		LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Activating polling");
+		myZWApi->zwPollDevices(true);
+	}
 }
 
 

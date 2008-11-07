@@ -248,6 +248,9 @@ namespace ZWApi {
 	// callback type temp var for state handling
 	int callback_type;
 
+	// polling state
+	bool poll_state;
+
 	// reference to our ZWave DCE device
 	void *myZWave;
 
@@ -330,6 +333,9 @@ namespace ZWApi {
 	// test functions
 	void zwReadMemory(int offset);
 	void zwRequestManufacturerSpecificReport(int node_id); 
+
+	// toggle polling
+	void zwPollDevices(bool onoff);
     };
 
 }
