@@ -268,6 +268,12 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							deviceList += tempbuf2;
 							break;
 						;;
+						case GENERIC_TYPE_SENSOR_MULTILEVEL:
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Sensor Multilevel");
+							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Generic_Sensor_CONST);
+							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Generic_Sensor_CONST;
+							deviceList += tempbuf2;
+							break;
 						default:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: %x",frame[6]);
 							break;
