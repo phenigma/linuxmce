@@ -562,7 +562,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 									(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[7];
 									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"State changed, send light changed event");
 									DCE::ZWave *tmp2_zwave = static_cast<DCE::ZWave*>(myZWave);
-									tmp2_zwave->SendLightChangedEvents (frame[3],(unsigned char)frame[7]);
+									tmp2_zwave->SendLightChangedEvents ((unsigned char)frame[3],(unsigned char)frame[7]);
 
 								}
 							}
@@ -589,6 +589,13 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 									} else {
 										tmp2_zwave->SendSensorTrippedEvents ((unsigned char)frame[3],false);
 									}
+
+								} else if (((*ZWNodeMapIt).second->typeGeneric == GENERIC_TYPE_SWITCH_BINARY) || ((*ZWNodeMapIt).second->typeGeneric == GENERIC_TYPE_SWITCH_MULTILEVEL)) {
+									(*ZWNodeMapIt).second->stateBasic = (unsigned char)frame[7];
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"State changed, send light changed event");
+									DCE::ZWave *tmp2_zwave = static_cast<DCE::ZWave*>(myZWave);
+									tmp2_zwave->SendLightChangedEvents ((unsigned char)frame[3],(unsigned char)frame[7]);
+
 
 								}
 							}
