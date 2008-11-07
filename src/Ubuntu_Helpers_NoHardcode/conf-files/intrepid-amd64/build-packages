@@ -2,8 +2,6 @@ alsa-source
 asterisk-dev
 autoconf
 automake
-automake1.10
-automake1.9
 build-essential
 ccache
 cvs
@@ -33,9 +31,10 @@ kdebase-workspace
 kdebase-workspace-dev
 kdegraphics
 kdelibs
-kdelibs4-dev
+kdelibs5-dev
 kdemultimedia
 kdenetwork
+kdepimlibs5-dev
 kdeutils
 kernel-package
 libaa1-dev
@@ -54,7 +53,6 @@ libcddb2-dev
 libcdio-dev
 libcdparanoia0-dev
 libconfuse-dev
-libcurl4-gnutls-dev
 libcurl4-openssl-dev
 libdancer-xml0-dev
 libdbus-1-dev
@@ -84,7 +82,7 @@ libimlib2-dev
 libirman-dev
 libjack0.100.0-dev
 libjpeg62-dev
-liblame-dev
+libkonq5-dev
 liblinphone2-dev
 liblircclient-dev
 libmad0-dev
@@ -92,11 +90,13 @@ libmagick++9-dev
 libmagick9-dev
 libmediastreamer0-dev
 libmodplug-dev
+libmp3lame-dev
 libmp4v2-dev
 libmpcdec-dev
 libmysqlclient15-dev
 libpanel-applet2-dev
 libpcre3-dev
+libplasma-dev
 libpostproc-dev
 libpulse-dev
 libqt3-compat-headers
@@ -137,10 +137,10 @@ libxtst-dev
 libxv-dev
 libxvmc-dev
 libxxf86vm-dev
-linux-headers-2.6.26-2-generic
-linux-image-2.6.26-2-generic
-linux-restricted-modules-2.6.26-2-generic
-linux-source-2.6.26
+linux-headers-2.6.27-7-generic
+linux-image-2.6.27-7-generic
+linux-restricted-modules-2.6.27-7-generic
+linux-source-2.6.27
 lirc-modules-source
 module-assistant
 mysql-client
