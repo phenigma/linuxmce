@@ -1485,7 +1485,7 @@ void ZWApi::ZWApi::zwRequestMultilevelSensorReport(int node_id) {
 	mybuf[3] = COMMAND_CLASS_SENSOR_MULTILEVEL;
 	mybuf[4] = SENSOR_MULTILEVEL_GET;
 	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
-	sendFunction( mybuf , 6, REQUEST, 0);
+	sendFunction( mybuf , 6, REQUEST, 1);
 }
 
 void ZWApi::ZWApi::zwStatusReport() {
