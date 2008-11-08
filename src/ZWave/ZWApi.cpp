@@ -518,6 +518,14 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						}
 						break;
 					;;
+					case COMMAND_CLASS_SENSOR_MULTILEVEL:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SENSOR_MULTILEVEL - ");
+						if (frame[6] == SENSOR_MULTILEVEL_REPORT) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i",(unsigned char)frame[3]);
+							
+						}
+						break;
+					;;
 					case COMMAND_CLASS_SWITCH_MULTILEVEL:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SWITCH_MULTILEVEL - ");
 						if (frame[6] == SWITCH_MULTILEVEL_REPORT) {
