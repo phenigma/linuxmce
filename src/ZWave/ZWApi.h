@@ -141,6 +141,11 @@
 #define COMMAND_CLASS_SENSOR_BINARY			0x30
 #define SENSOR_BINARY_REPORT				0x03
 
+#define COMMAND_CLASS_SENSOR_MULTILEVEL			0x31
+#define SENSOR_MULTILEVEL_VERSION			0x01
+#define SENSOR_MULTILEVEL_GET				0x04
+#define SENSOR_MULTILEVEL_REPORT			0x05
+
 #define COMMAND_CLASS_ALARM				0x71
 #define ALARM_REPORT					0x05
 
@@ -333,6 +338,9 @@ namespace ZWApi {
 	// test functions
 	void zwReadMemory(int offset);
 	void zwRequestManufacturerSpecificReport(int node_id); 
+
+	// request multilevel sensor report
+	void zwRequestMultilevelSensorReport(int node_id); 
 
 	// toggle polling
 	void zwPollDevices(bool onoff);

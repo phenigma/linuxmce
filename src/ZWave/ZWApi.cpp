@@ -467,6 +467,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							ZWNodeMapIt = ZWNodeMap.find((unsigned int)frame[3]);
 							if (ZWNodeMapIt != ZWNodeMap.end()) {
 								(*ZWNodeMapIt).second->sleepingDevice=true;
+								if ((*ZWNodeMapIt).second->typeGeneric == GENERIC_TYPE_SENSOR_MULTILEVEL) {
+									zwRequestMultilevelSensorReport((unsigned int)frame[3]);
+								}
 							}
 
 							// inject commands from the sleeping queue for this nodeid
@@ -1471,6 +1474,18 @@ void ZWApi::ZWApi::zwRequestManufacturerSpecificReport(int node_id) {
 	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 	sendFunction( mybuf , 6, REQUEST, 0);
 
+}
+
+void ZWApi::ZWApi::zwRequestMultilevelSensorReport(int node_id) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 2; // length of command
+	mybuf[3] = COMMAND_CLASS_SENSOR_MULTILEVEL;
+	mybuf[4] = SENSOR_MULTILEVEL_GET;
+	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction( mybuf , 6, REQUEST, 0);
 }
 
 void ZWApi::ZWApi::zwStatusReport() {
