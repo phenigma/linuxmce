@@ -1064,7 +1064,7 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 	index = 0;
 	i = 0;
 
-	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding job: %p",newJob);
+//	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Adding job: %p",newJob);
 	newJob->await_response = response && (type == REQUEST);
 	newJob->sendcount = 0;
 
@@ -1084,7 +1084,7 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 		newJob->callbackid = 0;
 		newJob->callback_type = 0;
 	}
-	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Setting callback type: %i",newJob->callback_type);
+	// DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Setting callback type: %i",newJob->callback_type);
 
 	newJob->buffer[index] = checksum(newJob->buffer+1,length+2+( response ? 1 : 0) );
 	ZWSendQueue.push_back(newJob);
