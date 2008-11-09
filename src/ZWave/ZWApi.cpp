@@ -522,6 +522,58 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SENSOR_MULTILEVEL - ");
 						if (frame[6] == SENSOR_MULTILEVEL_REPORT) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got sensor report from node %i",(unsigned char)frame[3]);
+							int scale = ( (unsigned char)frame[8] & SENSOR_MULTILEVEL_REPORT_SCALE_MASK ) >> SENSOR_MULTILEVEL_REPORT_SCALE_SHIFT;
+							int precision = ( (unsigned char)frame[8] & SENSOR_MULTILEVEL_REPORT_PRECISION_MASK ) >> SENSOR_MULTILEVEL_REPORT_PRECISION_SHIFT;
+							int size = (unsigned char)frame[8] & SENSOR_MULTILEVEL_REPORT_SIZE_MASK;
+							int value;
+							short tmpval;
+							switch(size) {
+								case 1:
+									value = (signed char)frame[9];
+									;;
+								break;
+								case 2:
+									tmpval = ((unsigned char)frame[9] << 8) + (unsigned char)frame[10];
+									value = (signed short)tmpval;
+									;;
+								break;
+								default:
+									value = ( (unsigned char)frame[9] << 24 ) + ( (unsigned char)frame[10] << 16 ) + ( (unsigned char)frame[11] << 8 ) + (unsigned char)frame[12];
+									value = (signed int)value;
+									;;
+								break;
+							}
+							value = value / (precision * 10); // we only take the integer part for now
+							switch(frame[7]) { // sensor type
+								case SENSOR_MULTILEVEL_REPORT_GENERAL_PURPOSE_VALUE:
+									if (scale == 0) {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose value received: %d %",value);
+									} else {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose value received: %d (dimensionless)",value);
+									} 
+								;;
+								break;
+								case SENSOR_MULTILEVEL_REPORT_LUMINANCE:
+									if (scale == 0) {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance value received: %d %",value);
+									} else {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance value received: %d Lux",value);
+									} 
+								;;
+								break;
+								case SENSOR_MULTILEVEL_REPORT_POWER:
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Power level measurement received: %d",value);
+								;;
+								break;
+								case SENSOR_MULTILEVEL_REPORT_CO2_LEVEL:
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"CO2 level measurement received: %d ppm",value);
+								;;
+								break;
+								default:
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Sensor type 0x%x not handled",(unsigned char)frame[7]);
+								;;
+								break;
+							}
 							
 						}
 						break;
