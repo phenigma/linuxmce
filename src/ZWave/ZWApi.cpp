@@ -320,7 +320,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				break;
 
 			default:
-				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"TODO: handle response for %i ",(unsigned char)frame[1]);
+				DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"TODO: handle response for 0x%x ",(unsigned char)frame[1]);
 				break;
 			;;
 		}
