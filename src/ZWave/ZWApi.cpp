@@ -543,7 +543,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 									;;
 								break;
 							}
-							value = value / (precision * 10); // we only take the integer part for now
+							if (precision > 0) { value = value / (precision * 10); }  // we only take the integer part for now
 							switch(frame[7]) { // sensor type
 								case SENSOR_MULTILEVEL_REPORT_GENERAL_PURPOSE_VALUE:
 									if (scale == 0) {
