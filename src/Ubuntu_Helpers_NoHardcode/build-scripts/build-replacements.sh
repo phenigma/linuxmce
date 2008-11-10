@@ -67,19 +67,9 @@ function Build_Replacements_Common {
 		;;
 	esac
 
-
-	#Package: libsdl
-	Build_Replacement_Package libsdl1.2debian-pluto ubuntu/libsdl1.2-1.2.12
-
-	#Package: spcp8x5
-	Build_Replacement_Package spcp8x5 ubuntu/spcp8x5
-
-	#Package: libxine
-	Build_Replacement_Package libxine ubuntu/xine-lib-1.1.10.1
-
 	#Package: mythtv
-	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
-	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
+#	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
+#	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
 
 	#Package: tee-pluto
 	Build_Replacement_Package tee-pluto misc_utils/tee-pluto
@@ -177,6 +167,10 @@ function Build_Replacements_Common {
 }
 
 function Build_Replacements_Hardy {
+
+	#Package: spcp8x5
+	Build_Replacement_Package spcp8x5 ubuntu/spcp8x5
+
 #	#Package: chan-sccp
 # No need to do this twice (see above)
 #	Build_Replacement_Package chan-sccp ubuntu/asterisk/chan_sccp
@@ -186,6 +180,17 @@ function Build_Replacements_Hardy {
 
 function Build_Replacements_Gutsy {
 	mkdir -p "$replacements_dir"
+
+
+	#Package: libsdl
+	Build_Replacement_Package libsdl1.2debian-pluto ubuntu/libsdl1.2-1.2.12
+
+	#Package: spcp8x5
+	Build_Replacement_Package spcp8x5 ubuntu/spcp8x5
+
+	#Package: libxine
+	Build_Replacement_Package libxine ubuntu/xine-lib-1.1.10.1
+
 
 	# DISABLED IN HARDY : not compiling anymore
 	# Package: liblinphone
