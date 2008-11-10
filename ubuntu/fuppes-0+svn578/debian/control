@@ -2,7 +2,7 @@ Source: fuppes
 Section: misc
 Priority: optional
 Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
-Build-Depends: debhelper (>= 5), autotools-dev, libtool, libpcre3-dev, libxml2-dev, libsqlite3-dev, uuid-dev, libtag1-dev, liblame-dev, libmpcdec-dev, libfaad2-dev | libfaad-dev, libflac-dev, libtwolame-dev, libavcodec-dev, libavformat-dev, libswscale-dev, libmagick++9-dev, libmad0-dev, libmp4v2-dev
+Build-Depends: debhelper (>= 5), autotools-dev, libtool, libpcre3-dev, libxml2-dev, libsqlite3-dev, uuid-dev, libtag1-dev, liblame-dev | libmp3lame-dev, libmpcdec-dev, libfaad2-dev | libfaad-dev, libflac-dev, libtwolame-dev, libavcodec-dev, libavformat-dev, libswscale-dev, libmagick++9-dev, libmad0-dev, libmp4v2-dev
 Standards-Version: 3.7.3
 
 Package: fuppes
