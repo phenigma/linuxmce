@@ -293,7 +293,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Finished building node list:");
 					ZWNodeMapIt = ZWNodeMap.begin();
 					while (ZWNodeMapIt!=ZWNodeMap.end()) {
-						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: %i generic: %i specific: %i pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->typeSpecific,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Node: %i basic: 0x%x generic: 0x%x specific: 0x%x pluto: %i",(*ZWNodeMapIt).first,(*ZWNodeMapIt).second->typeBasic,(*ZWNodeMapIt).second->typeGeneric,(*ZWNodeMapIt).second->typeSpecific,(*ZWNodeMapIt).second->plutoDeviceTemplateConst);
 						ZWNodeMapIt++;
 		
 					}
@@ -581,10 +581,16 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					case COMMAND_CLASS_SWITCH_MULTILEVEL:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_SWITCH_MULTILEVEL - ");
 						if (frame[6] == SWITCH_MULTILEVEL_REPORT) {
-							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch multilevel report from node %i, level: %i",frame[3],frame[7]);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch multilevel report from node %i, level: %i",(unsigned char)frame[3],(unsigned char)frame[7]);
 							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
 							tmp_zwave->SendLightChangedEvents ((unsigned char)frame[3],(unsigned char)frame[7]);
+						} else if ((unsigned char)frame[6] == SWITCH_MULTILEVEL_SET) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got switch multilevel set from node %i, level: %i",(unsigned char)frame[3],(unsigned char)frame[7]);
+							DCE::ZWave *tmp_zwave = static_cast<DCE::ZWave*>(myZWave);
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Send light changed event");
+							tmp_zwave->SendLightChangedEvents ((unsigned char)frame[3],(unsigned char)frame[7]);
+
 						}
 						break;
 					case COMMAND_CLASS_SWITCH_ALL:
