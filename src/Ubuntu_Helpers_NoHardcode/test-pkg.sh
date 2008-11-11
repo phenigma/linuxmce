@@ -5,6 +5,20 @@
 set -e
 set -x
 
+
+case "${build_name}" in
+	"gutsy")
+		Distro_ID="15"
+		;;
+	"hardy")
+		Distro_ID="16"
+		;;
+	"intrepid")
+		Distro_ID="17"
+		;;
+esac
+
+
 export PATH=$PATH:${svn_dir}/${svn_branch_name}/src/bin
 export LD_LIBRARY_PATH="$mkr_dir:${svn_dir}/${svn_branch_name}/src/lib"
 
@@ -26,6 +40,6 @@ export MYSQL_BUILD_CRED
 SVNrevision=$(svn info "$svn_dir/$svn_branch_name/src" |grep ^Revision | cut -d" " -f2)
 
 # Compile the packages
-"${mkr_dir}/MakeRelease" -R "$SVNrevision" $PLUTO_BUILD_CRED -O "$out_dir" -D 'pluto_main_build' -o 16 -r 21 -m 1 -k "$1" -s "${svn_dir}/${svn_branch_name}" -n / -d
-"${mkr_dir}/MakeRelease" -R "$SVNrevision" $PLUTO_BUILD_CRED -O "$out_dir" -D 'pluto_main_build' -o 16 -r 21 -m 1108 -k "$1" -s "${svn_dir}/${svn_branch_name}" -n / -d
+"${mkr_dir}/MakeRelease" -R "$SVNrevision" $PLUTO_BUILD_CRED -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1 -k "$1" -s "${svn_dir}/${svn_branch_name}" -n / -d
+"${mkr_dir}/MakeRelease" -R "$SVNrevision" $PLUTO_BUILD_CRED -O "$out_dir" -D 'pluto_main_build' -o "$Distro_ID" -r 21 -m 1108 -k "$1" -s "${svn_dir}/${svn_branch_name}" -n / -d
 

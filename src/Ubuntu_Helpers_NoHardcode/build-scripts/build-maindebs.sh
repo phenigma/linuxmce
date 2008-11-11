@@ -80,7 +80,7 @@ function build_main_debs() {
 			Distro_ID="16"
 			;;
 		"intrepid")
-			Distro_ID="16"
+			Distro_ID="17"
 			exclude_list=$exclude_list,$mkr_tira
 			exclude_list=$exclude_list,$mkr_shift_key_state
 			exclude_list=$exclude_list,$mkr_simplephone

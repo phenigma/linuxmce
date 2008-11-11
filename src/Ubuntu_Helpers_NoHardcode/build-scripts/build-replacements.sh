@@ -7,9 +7,9 @@
 
 set -e
 
-function Changed_Since_Last_Build {
-#Zaerc HACK
-	return $(/bin/true)
+function Changed_Since_Last_Build
+{
+	return $(/bin/true) #Zaerc HACK
 
 	local fs_path="$1"
 	DisplayMessage "Checking for changes '$fs_path'"
@@ -49,40 +49,19 @@ function Build_Replacement_Package
 
 }
 
-function Build_Replacements_Common { 
-	mkdir -p "$replacements_dir"
-
-	build_zaptel="yes"
-        build_mce_installer="yes"
-        build_alsa_modules="yes"
-	case "${build_name}" in
-		"gutsy")
-		;;
-		"hardy")
-		;;
-		"intrepid")
-		build_zaptel="no"
-                build_mce_installer="no"
-	        build_alsa_modules="no"
-		;;
-	esac
-
-	#Package: mythtv
-#	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
-#	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
+function Build_Replacements_Common
+{ 
+	mkdir -pv "$replacements_dir"
 
 	#Package: tee-pluto
 	Build_Replacement_Package tee-pluto misc_utils/tee-pluto
 
 	#Package: pluto-mplayer
 	Build_Replacement_Package pluto-mplayer ubuntu/mplayer-svn26234
-	
+
 	#Package: pluto-ffmpeg
 	Build_Replacement_Package pluto-ffmpeg ubuntu/ffmpeg-svn12476
-	
-	#Package: fuppes
-	Build_Replacement_Package fuppes ubuntu/fuppes-0+svn578
-	
+
 	#Package: djmount
 	Build_Replacement_Package djmount ubuntu/djmount-0.71
 
@@ -106,29 +85,14 @@ function Build_Replacements_Common {
 	#Package: lshwd
 	Build_Replacement_Package lshwd_2.0 ubuntu/lshwd-2.0-rc4
 
-        if [ x"$build_zaptel" = x"yes" ] ; then
-		#Package: zaptel-modules
-		DisplayMessage "Building zaptel-modules"
-		m-a --non-inter -ft -l $KVER a-b zaptel
-		cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
-	fi
-
 	#Package: lirc-pluto
 	Build_Replacement_Package lirc-pluto ubuntu/lirc-pluto-0.1
 
-	#Package: lirc
-#	Build_Replacement_Package lirc ubuntu/lirc-0.8.2+lmce
-	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
-	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
-	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
-	
 	#Package: mce-launcher
 	Build_Replacement_Package mce-launcher src/mce-launcher
 
 	#Package: mce-installer
-        if [ x"$build_mce_installer" = x"yes" ] ; then
-		Build_Replacement_Package mce-installer src/mce-installer
-	fi
+	Build_Replacement_Package mce-installer src/mce-installer
 
 	#Package: mtx-pluto
 	Build_Replacement_Package mtx-pluto ubuntu/mtx-1.3.11
@@ -149,13 +113,6 @@ function Build_Replacements_Common {
 		popd
 	fi
 
-	#Package: alsa-modules
-	if [ x"$build_alsa_modules" = x"yes" ] ; then
-		DisplayMessage "Building alsa-modules"
-		m-a --non-inter -ft -l $KVER a-b alsa
-		cp /usr/src/alsa-modules-*.deb "${replacements_dir}"
-	fi
-
 ### Now done in prepare-scripts/import-external-files.sh, 
 ###  this here and src/pluto-avwizard-sounds can be removed
 #	#Package: pluto-avwizard-sounds
@@ -166,21 +123,63 @@ function Build_Replacements_Common {
 
 }
 
-function Build_Replacements_Hardy {
+function Build_Replacements_Intrepid
+{
+	mkdir -pv "$replacements_dir"
+
+	#Package: mythtv
+#	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
+#	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
+
+	#Package: lirc
+	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
+#	Build_Replacement_Package lirc ubuntu/lirc-0.8.3-0ubuntu2+lmce
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
+
+}
+
+function Build_Replacements_Hardy
+{
+	mkdir -pv "$replacements_dir"
+
+	#Package: mythtv
+	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
 
 	#Package: spcp8x5
 	Build_Replacement_Package spcp8x5 ubuntu/spcp8x5
+	# Included in Intrepid's linux-image.
 
-#	#Package: chan-sccp
-# No need to do this twice (see above)
-#	Build_Replacement_Package chan-sccp ubuntu/asterisk/chan_sccp
+	#Package: fuppes
+	Build_Replacement_Package fuppes ubuntu/fuppes-0+svn578
+	# Will be replaced by mediatomb in Intrepid
+
+	#Package: zaptel-modules
+	DisplayMessage "Building zaptel-modules"
+	m-a --non-inter -ft -l $KVER a-b zaptel
+	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
+
+	#Package: alsa-modules
+	DisplayMessage "Building alsa-modules"
+	m-a --non-inter -ft -l $KVER a-b alsa
+	cp /usr/src/alsa-modules-*.deb "${replacements_dir}"
+
+	#Package: lirc
+	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
 
 	Build_Replacement_Package pluto-default-tftpboot src/pluto-default-tftpboot-2.0.0.44.0804
 }
 
-function Build_Replacements_Gutsy {
-	mkdir -p "$replacements_dir"
+function Build_Replacements_Gutsy
+{
+	mkdir -pv "$replacements_dir"
 
+	#Package: mythtv
+	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
 
 	#Package: libsdl
 	Build_Replacement_Package libsdl1.2debian-pluto ubuntu/libsdl1.2-1.2.12
@@ -191,6 +190,15 @@ function Build_Replacements_Gutsy {
 	#Package: libxine
 	Build_Replacement_Package libxine ubuntu/xine-lib-1.1.10.1
 
+	#Package: zaptel-modules
+	DisplayMessage "Building zaptel-modules"
+	m-a --non-inter -ft -l $KVER a-b zaptel
+	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
+
+	#Package: alsa-modules
+	DisplayMessage "Building alsa-modules"
+	m-a --non-inter -ft -l $KVER a-b alsa
+	cp /usr/src/alsa-modules-*.deb "${replacements_dir}"
 
 	# DISABLED IN HARDY : not compiling anymore
 	# Package: liblinphone
@@ -206,6 +214,11 @@ function Build_Replacements_Gutsy {
 #	fi
 	Build_Replacement_Package linphone ubuntu/linphone-1.3.5
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/{liblinphone1-lmce_,libortp4-lmce_}*.deb ${replacements_dir}
+
+	#Package: lirc
+	Build_Replacement_Package lirc ubuntu/lirc-0.8.2+lmce
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
 
 	# DISABLED IN HARDY : included in kernel package
 	#Package: lirc-modules
@@ -275,9 +288,13 @@ case "${build_name}" in
 	"hardy")
 		Build_Replacements_Hardy
 		;;
+	"intrepid")
+		Build_Replacements_Intrepid
+		;;
 esac
 
 DisplayMessage "Removing duplicate debs from replacements"
 remove_duplicate_debs "${replacements_dir}"
 
 trap - EXIT
+
