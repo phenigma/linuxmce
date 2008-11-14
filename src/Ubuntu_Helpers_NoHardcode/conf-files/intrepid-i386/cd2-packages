@@ -217,7 +217,6 @@ libfaad2-0
 libfame-0.9
 libfcgi-perl
 libfile-slurp-perl
-libfile-temp-perl
 libfile-which-perl
 libflac8
 libflickr-api-perl
@@ -260,7 +259,7 @@ libgnutls-dev
 libgnutls26
 libgpg-error-dev
 libgpg-error0
-libgpmg2
+libgpm2
 libgsm1
 libgssapi2-heimdal
 libgssglue1
@@ -707,7 +706,6 @@ xfonts-utils
 xinit
 xlibmesa-gl
 xlibmesa-gl-dev
-xlibs-static-dev
 xloadimage
 xml-core
 xmltv-util
