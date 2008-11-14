@@ -44,8 +44,8 @@ defoma
 dhcp3-common
 dhcp3-server
 dialog
-discover1
-discover1-data
+discover
+discover-data
 dmsetup
 docbook-xml
 dpkg-dev
@@ -167,7 +167,7 @@ libconfuse0
 libconvert-binhex-perl
 libcrypt-smbhash-perl
 libcrypt-ssleay-perl
-libct3
+libct4
 libcucul0
 libcupsys2
 libcupsys2-dev
@@ -196,7 +196,7 @@ libdigest-hmac-perl
 libdigest-md4-perl
 libdigest-sha1-perl
 libdirectfb-1.0-0
-libdiscover1
+libdiscover2
 libdmx1
 libdrm2
 libdv4
@@ -236,8 +236,6 @@ libfreetype6
 libfreetype6-dev
 libfs6
 libft-perl
-libgail-common
-libgail18
 libgcc1
 libgconf2-4
 libgcrypt11
@@ -268,14 +266,16 @@ libgnutls-dev
 libgnutls26
 libgpg-error-dev
 libgpg-error0
-libgpmg1
+libgpmg2
 libgsm1
 libgssapi2-heimdal
 libgssglue1
 libgtk1.2
 libgtk1.2-common
+libgtk2.0-0
 libgtk2.0-bin
 libgtk2.0-common
+libgtk2.0-doc
 libgtop2-7
 libgtop2-common
 libhal-dev
@@ -320,7 +320,6 @@ libjpeg62-dev
 libkadm55
 libkrb5-dev
 libkrb53
-liblame0
 liblcms1
 liblcms1-dev
 liblinphone2
@@ -329,7 +328,7 @@ liblircclient-dev
 liblircclient0
 liblocale-gettext-perl
 liblogfile-rotate-perl
-libltdl3
+libltdl7
 liblua50
 liblualib50
 liblwres40
@@ -348,6 +347,7 @@ libmng-dev
 libmng1
 libmodplug0c2
 libmodule-pluggable-perl
+libmp3lame0
 libmp4v2-0
 libmpeg2-4
 libmyodbc
@@ -367,7 +367,7 @@ libnspr4-0d
 libnss3-0d
 libntfs-3g28
 libogg0
-libopenal0a
+libopenal1
 libopencdk10-dev
 libopenexr6
 libopenobex1
@@ -475,7 +475,7 @@ libttf2
 libtwolame0
 libungif4g
 libuniversal-moniker-perl
-libupnp2
+libupnp3
 liburi-perl
 libusb-0.1-4
 libusb-dev
@@ -713,7 +713,6 @@ xfonts-utils
 xinit
 xlibmesa-gl
 xlibmesa-gl-dev
-xlibs-data
 xlibs-static-dev
 xloadimage
 xml-core
@@ -734,14 +733,12 @@ xserver-xorg-video-ark
 xserver-xorg-video-ati
 xserver-xorg-video-chips
 xserver-xorg-video-cirrus
-xserver-xorg-video-cyrix
 xserver-xorg-video-dummy
 xserver-xorg-video-fbdev
 xserver-xorg-video-glint
 xserver-xorg-video-i128
 xserver-xorg-video-i740
 xserver-xorg-video-i810
-xserver-xorg-video-imstt
 xserver-xorg-video-intel
 xserver-xorg-video-mga
 xserver-xorg-video-neomagic
@@ -761,7 +758,6 @@ xserver-xorg-video-tseng
 xserver-xorg-video-v4l
 xserver-xorg-video-vesa
 xserver-xorg-video-vga
-xserver-xorg-video-via
 xserver-xorg-video-vmware
 xserver-xorg-video-voodoo
 xterm
