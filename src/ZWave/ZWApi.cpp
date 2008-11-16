@@ -177,8 +177,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
 						newNode->sleepingDevice = false;
 						// request version from the device
-						zwRequestVersion(tmp_nodeid);
-						zwRequestManufacturerSpecificReport(tmp_nodeid);
+						//zwRequestVersion(tmp_nodeid);
+						//zwRequestManufacturerSpecificReport(tmp_nodeid);
 					} else {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"sleeping node");
 						newNode->sleepingDevice = true;
@@ -291,6 +291,10 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"SPECIFIC TYPE: 0x%x",frame[7]);
 
 					ZWNodeMap.insert(std::map < int, ZWNode * >::value_type(tmp_nodeid,newNode));
+					if (newNode->plutoDeviceTemplateConst != 0) {
+						sprintf(tempbuf2, "%d", tmp_nodeid);
+						DCEcallback->AddDevice(0, tempbuf2, newNode->plutoDeviceTemplateConst);
+					}
 
 				} else {
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Invalid generic class (0x%x), ignoring device",(unsigned char)frame[6]);

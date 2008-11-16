@@ -44,6 +44,7 @@ namespace DCE
 //<-dceag-decl-e->
 		// Private member variables
 		ZWApi::ZWApi *myZWApi;
+		int myDeviceID;
 
 		// Private methods
 		
@@ -63,6 +64,9 @@ public:
 		virtual void SendSensorTrippedEvents(unsigned short node_id, bool value);
 		virtual void SendLightChangedEvents(unsigned short node_id, int value);
 		virtual void SendOrbiterPopup(const char *message); 
+        	virtual int AddDevice(int parent, string sInternalID, int PK_DeviceTemplate);
+        	virtual bool DeleteDevice(int device_id);
+
 
 
 //<-dceag-const2-b->

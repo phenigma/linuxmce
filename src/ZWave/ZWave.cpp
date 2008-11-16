@@ -34,6 +34,7 @@ ZWave::ZWave(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 {
 	// string port = DATA_Get_COM_Port_on_PC();
 	myZWApi=new ZWApi::ZWApi(this);
+	myDeviceID=DeviceID;
 
 }
 
@@ -61,7 +62,7 @@ bool ZWave::GetConfig()
 	string port = TranslateSerialUSB(DATA_Get_COM_Port_on_PC());
 	myZWApi->init(port.c_str());
 	// give the z-wave stack some time to settle
-	sleep(12);
+	// sleep(12);
 	// CMD_Report_Child_Devices();
 
 	return true;
@@ -155,8 +156,8 @@ void ZWave::CMD_Report_Child_Devices(string &sCMD_Result,Message *pMessage)
 //<-dceag-c756-e->
 {
 	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Received command #756 - Report Child Devices");
-	LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reporting child devices");
-	EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
+	// LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reporting child devices");
+	//EVENT_Reporting_Child_Devices("",myZWApi->getDeviceList() );
 
 }
 
@@ -527,3 +528,81 @@ void ZWave::SendOrbiterPopup(const char *message) {
 		COMMANDPARAMETER_Interruption_CONST, "0")
 	);
 }
+
+int ZWave::AddDevice(int parent, string sInternalID, int PK_DeviceTemplate) {
+	int iPK_Device = 0;
+
+	int tmp_parent = 0;
+	if (parent > 0) { tmp_parent = parent; } else { tmp_parent = m_dwPK_Device; }
+
+	string tmp_s = StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID;
+	bool bFound = false;
+
+        DeviceData_Impl *pChildDevice = NULL;
+        for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+                        it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+        {
+                pChildDevice = (*it);
+                if( pChildDevice != NULL )
+                {
+			int tmp_node_id = atoi(pChildDevice->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+			// check if child already exists
+			if ( tmp_node_id == atoi(sInternalID.c_str())) {
+				bFound = true;
+			}
+
+			// iterate over embedded interfaces
+			DeviceData_Impl *pChildDevice1 = NULL;
+			for( VectDeviceData_Impl::const_iterator it1 = pChildDevice->m_vectDeviceData_Impl_Children.begin();
+				it1 != pChildDevice->m_vectDeviceData_Impl_Children.end(); ++it1 )
+			{
+				pChildDevice1 = (*it1);
+				if( pChildDevice1 != NULL )
+				{
+					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+					if ( tmp_node_id == atoi(sInternalID.c_str())) {
+						bFound = true;
+					}
+				}
+			}
+
+		}
+	}
+	if (!bFound) {
+		// does not exist, create child
+		/*
+		m_pEvent->SendMessage( new Message(m_dwPK_Device,4,
+		// m_pEvent->SendMessage( new Message(m_dwPK_Device,DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST,
+			PRIORITY_NORMAL,
+			MESSAGETYPE_COMMAND,
+			COMMAND_Create_Device_CONST,
+			10,
+			COMMANDPARAMETER_PK_DeviceTemplate_CONST, StringUtils::itos(PK_DeviceTemplate).c_str(),
+			COMMANDPARAMETER_Mac_address_CONST, "",
+			COMMANDPARAMETER_PK_Room_CONST, "0",
+			COMMANDPARAMETER_IP_Address_CONST, "",
+			COMMANDPARAMETER_Data_String_CONST, tmp_s.c_str(),
+			COMMANDPARAMETER_PK_DHCPDevice_CONST, "",
+			COMMANDPARAMETER_PK_Device_ControlledVia_CONST, StringUtils::itos(tmp_parent).c_str(),
+			COMMANDPARAMETER_Description_CONST, "",
+			COMMANDPARAMETER_PK_Orbiter_CONST, "0",
+			COMMANDPARAMETER_PK_Device_Related_CONST, "", 
+			COMMANDPARAMETER_PK_Device_CONST, "") // StringUtils::itos(*iPK_Device).c_str() )
+		); */
+		// CMD_Create_Device add_command(m_dwPK_Device,DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST, PK_DeviceTemplate,"",0,"",
+		CMD_Create_Device add_command(m_dwPK_Device,4, PK_DeviceTemplate,"",0,"",
+			StringUtils::itos(DEVICEDATA_PortChannel_Number_CONST) + "|" + sInternalID, 0,tmp_parent,"",0,0,&iPK_Device) ;
+		SendCommand(add_command);
+	}
+
+	return iPK_Device;
+
+} 
+bool ZWave::DeleteDevice(int device_id) {
+
+	// CMD_Delete_Device del_command(m_dwPK_Device,DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST,device_id);
+	CMD_Delete_Device del_command(m_dwPK_Device,4,device_id);
+	SendCommand(del_command);
+	return true;
+}
+
