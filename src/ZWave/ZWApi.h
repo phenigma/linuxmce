@@ -117,6 +117,10 @@
 #define BASIC_GET					0x02
 #define BASIC_REPORT					0x03
 
+#define COMMAND_CLASS_VERSION				0x86
+#define VERSION_GET					0x11
+#define VERSION_REPORT					0x12
+
 #define COMMAND_CLASS_BATTERY				0x80
 #define BATTERY_REPORT					0x03
 
@@ -354,6 +358,12 @@ namespace ZWApi {
 
 	// request multilevel sensor report
 	void zwRequestMultilevelSensorReport(int node_id); 
+
+	// request the version from a node
+	void zwRequestVersion(int node_id); 
+
+	// request the node information frame from a node
+	void zwRequestNodeInfo(int node_id); 
 
 	// toggle polling
 	void zwPollDevices(bool onoff);

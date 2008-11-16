@@ -176,6 +176,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					if (((unsigned char)frame[2]) && (0x01 << 7)) {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"listening node");
 						newNode->sleepingDevice = false;
+						// request version from the device
+						zwRequestVersion(tmp_nodeid);
+						zwRequestManufacturerSpecificReport(tmp_nodeid);
 					} else {
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"sleeping node");
 						newNode->sleepingDevice = true;
@@ -459,6 +462,24 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							tempbuf[0]=FUNC_ID_ZW_REPLICATION_COMMAND_COMPLETE;
 							sendFunction( tempbuf , 1, REQUEST, 0); 
 						}
+						break;
+					;;
+					case COMMAND_CLASS_VERSION:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_VERSION");
+						if (frame[6] == VERSION_REPORT) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REPORT: Lib.typ: 0x%x, Prot.Ver: 0x%x, Sub: 0x%x App.Ver: 0x%x, Sub: 0x%x",
+								(unsigned char)frame[7], (unsigned char)frame[8], (unsigned char)frame[9], (unsigned char)frame[10], (unsigned char)frame[11]);
+						}
+
+						break;
+					;;
+					case COMMAND_CLASS_MANUFACTURER_SPECIFIC:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_MANUFACTURER_SPECIFIC");
+						if (frame[6] == MANUFACTURER_SPECIFIC_REPORT) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"REPORT: Manuf ID1: 0x%x ID2: 0x%x, Prod Typ1: 0x%x Typ2: 0x%x, Prod ID1: 0x%x ID2: 0x%x",
+								(unsigned char)frame[7], (unsigned char)frame[8], (unsigned char)frame[9], (unsigned char)frame[10], (unsigned char)frame[11], (unsigned char)frame[12]);
+						}
+
 						break;
 					;;
 					case COMMAND_CLASS_WAKE_UP:
@@ -1543,6 +1564,21 @@ void ZWApi::ZWApi::zwRequestMultilevelSensorReport(int node_id) {
 	mybuf[2] = 2; // length of command
 	mybuf[3] = COMMAND_CLASS_SENSOR_MULTILEVEL;
 	mybuf[4] = SENSOR_MULTILEVEL_GET;
+	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction( mybuf , 6, REQUEST, 1);
+}
+
+void ZWApi::ZWApi::zwRequestNodeInfo(int node_id) {
+}
+
+void ZWApi::ZWApi::zwRequestVersion(int node_id) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 2; // length of command
+	mybuf[3] = COMMAND_CLASS_VERSION;
+	mybuf[4] = VERSION_GET;
 	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 	sendFunction( mybuf , 6, REQUEST, 1);
 }
