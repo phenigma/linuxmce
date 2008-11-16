@@ -305,8 +305,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 		
 					}
 				
-					DCEcallback->CMD_Report_Child_Devices();
-					// tmp_zwave->EVENT_Reporting_Child_Devices("",getDeviceList() );	
+					// DCEcallback->CMD_Report_Child_Devices();
 					
 				}
 				break;
@@ -1510,6 +1509,10 @@ bool ZWApi::ZWApi::wakeupHandler(int node_id) {
 	}
 	return true;
 }	
+
+void ZWApi::ZWApi::parseNodeInfo(int nodeid, char *nodeinfo, size_t length) {
+
+}
 
 
 bool ZWApi::ZWApi::zwRequestNodeNeighborUpdate(int node_id) {

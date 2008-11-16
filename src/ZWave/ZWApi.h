@@ -278,6 +278,8 @@ namespace ZWApi {
 
 	bool wakeupHandler(int nodeid);
 
+	void parseNodeInfo(int nodeid, char *nodeinfo, size_t length);
+
       public:
 	 ZWApi(void *myZWave);
 
