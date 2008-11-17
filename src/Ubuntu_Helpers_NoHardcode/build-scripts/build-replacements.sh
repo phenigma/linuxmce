@@ -137,6 +137,11 @@ function Build_Replacements_Intrepid
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
 
+	#Package: zaptel-modules
+	DisplayMessage "Building zaptel-modules"
+	m-a --non-inter -ft -l $KVER a-b zaptel
+	cp /usr/src/zaptel-modules*.deb "${replacements_dir}"
+
 }
 
 function Build_Replacements_Hardy

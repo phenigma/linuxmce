@@ -83,7 +83,7 @@ function build_main_debs() {
 			Distro_ID="17"
 			exclude_list=$exclude_list,$mkr_tira
 			exclude_list=$exclude_list,$mkr_shift_key_state
-			exclude_list=$exclude_list,$mkr_simplephone
+#			exclude_list=$exclude_list,$mkr_simplephone
 			exclude_list=$exclude_list,$mkr_launch_manager_package
 			exclude_list=$exclude_list,$mkr_irtrans_package
 			exclude_list=$exclude_list,$mkr_vdr_plugin
