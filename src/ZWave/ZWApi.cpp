@@ -211,76 +211,41 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					switch (frame[6]) {
 						case GENERIC_TYPE_GENERIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Generic Controller");
-							// [internal id] \t [description] \t [room name] \t [device template] \t [floorplan id] \n
-#ifdef DEVICETEMPLATE_ZWave_Controller_CONST
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
-							deviceList += tempbuf2;
-#endif
 							break;
 						;;
 						case GENERIC_TYPE_STATIC_CONTROLLER:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Static Controller");
-#ifdef DEVICETEMPLATE_ZWave_Controller_CONST
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
-							deviceList += tempbuf2;
-#endif
 							break;
 						;;
 						case GENERIC_TYPE_THERMOSTAT:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Thermostat");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Standard_Thermostat_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Standard_Thermostat_CONST;
-							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_MULTILEVEL:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Multilevel Switch");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_dimmable_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Light_Switch_dimmable_CONST;
-							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_REMOTE:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Remote Switch");
-#ifdef DEVICETEMPLATE_ZWave_Controller_CONST
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_ZWave_Controller_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_ZWave_Controller_CONST;
-							deviceList += tempbuf2;
-#endif
 							// TODO: saner approach
 							//  we read the associations from groups one and two (left and right paddle on the ACT remote switch)
 							zwAssociationGet(tmp_nodeid,1);
 							zwAssociationGet(tmp_nodeid,2);
-							
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_BINARY:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Binary Switch");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Light_Switch_onoff_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Light_Switch_onoff_CONST;
-							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SENSOR_BINARY:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Sensor Binary");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Generic_Sensor_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Generic_Sensor_CONST;
-							deviceList += tempbuf2;
 							break;
 						case GENERIC_TYPE_WINDOW_COVERING:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Window Covering");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Drapes_Switch_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Drapes_Switch_CONST;
-							deviceList += tempbuf2;
 							break;
 						;;
 						case GENERIC_TYPE_SENSOR_MULTILEVEL:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Sensor Multilevel");
-							sprintf(tempbuf2, "%d\t\t\t%d\t\n", tmp_nodeid, DEVICETEMPLATE_Generic_Sensor_CONST);
-							newNode->plutoDeviceTemplateConst = DEVICETEMPLATE_Generic_Sensor_CONST;
-							deviceList += tempbuf2;
 							break;
 						default:
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: 0x%x",frame[6]);
@@ -289,6 +254,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 					}
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"SPECIFIC TYPE: 0x%x",frame[7]);
+					newNode->plutoDeviceTemplateConst = getDeviceTemplate(0,(unsigned char)frame[6],0,NULL,0);
 
 					ZWNodeMap.insert(std::map < int, ZWNode * >::value_type(tmp_nodeid,newNode));
 					if (newNode->plutoDeviceTemplateConst != 0) {
@@ -1518,6 +1484,46 @@ void ZWApi::ZWApi::parseNodeInfo(int nodeid, char *nodeinfo, size_t length) {
 
 }
 
+int ZWApi::ZWApi::getDeviceTemplate(int basic, int generic, int specific, char *nodeinfo, size_t len) {
+	int devicetemplate = 0;
+	switch(generic) {
+		case GENERIC_TYPE_GENERIC_CONTROLLER:
+		case GENERIC_TYPE_STATIC_CONTROLLER:
+#ifdef DEVICETEMPLATE_ZWave_Controller_CONST
+			devicetemplate = DEVICETEMPLATE_ZWave_Controller_CONST;
+#endif
+			break;
+		case GENERIC_TYPE_THERMOSTAT:
+			devicetemplate = DEVICETEMPLATE_Standard_Thermostat_CONST;
+			break;
+		case GENERIC_TYPE_SWITCH_MULTILEVEL:
+			devicetemplate = DEVICETEMPLATE_Light_Switch_dimmable_CONST;
+			break;
+		case GENERIC_TYPE_SWITCH_REMOTE:
+#ifdef DEVICETEMPLATE_ZWave_Remote_Switch_CONST
+			devicetemplate = DEVICETEMPLATE_ZWave_Remote_Switch_CONST;
+#else
+#ifdef DEVICETEMPLATE_ZWave_Controller_CONST
+			devicetemplate = DEVICETEMPLATE_ZWave_Controller_CONST;
+#endif
+#endif
+			break;
+		case GENERIC_TYPE_SWITCH_BINARY:
+			devicetemplate = DEVICETEMPLATE_Light_Switch_onoff_CONST;
+			break;
+		case GENERIC_TYPE_SENSOR_BINARY:
+			devicetemplate = DEVICETEMPLATE_Generic_Sensor_CONST;
+			break;
+		case GENERIC_TYPE_WINDOW_COVERING:
+			devicetemplate = DEVICETEMPLATE_Drapes_Switch_CONST;
+			break;
+		case GENERIC_TYPE_SENSOR_MULTILEVEL:
+			devicetemplate = DEVICETEMPLATE_Generic_Sensor_CONST;
+			break;
+	}
+	return devicetemplate;
+
+}
 
 bool ZWApi::ZWApi::zwRequestNodeNeighborUpdate(int node_id) {
 	char mybuf[1024];

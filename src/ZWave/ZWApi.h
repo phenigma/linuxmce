@@ -280,6 +280,9 @@ namespace ZWApi {
 
 	void parseNodeInfo(int nodeid, char *nodeinfo, size_t length);
 
+	int getDeviceTemplate(int basic, int generic, int specific, char *nodeinfo, size_t len);
+
+
       public:
 	 ZWApi(void *myZWave);
 
