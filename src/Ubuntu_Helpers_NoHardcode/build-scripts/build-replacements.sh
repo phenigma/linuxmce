@@ -132,8 +132,7 @@ function Build_Replacements_Intrepid
 #	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
 
 	#Package: lirc
-	Build_Replacement_Package lirc ubuntu/lirc-0.8.3~pre1+lmce
-#	Build_Replacement_Package lirc ubuntu/lirc-0.8.3-0ubuntu2+lmce
+	Build_Replacement_Package lirc ubuntu/lirc-0.8.3+lmce
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
 	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
 
