@@ -412,7 +412,7 @@ void GenerateWizardConfigDefaults::GeneratePage_UISwitcher(
 	std::string StringList[4];
 	StringList[0] = "Select your user experience.  The Alpha blended UI is better.";
 	StringList[1] = "But before choosing it read how it works and the requirements";
-	StringList[2] = "at http://plutohome.com/wiki/index.php/UI";
+	StringList[2] = "at http://wiki.linuxmce.org/index.php/UI";
 
 	SettingsDictionaryTree* BackgroundControl = CreateControlBackground("Gray", "(none)", 0, 0);
 	std::string Color = SkinGenerator::Instance()->BackgroundColor;
