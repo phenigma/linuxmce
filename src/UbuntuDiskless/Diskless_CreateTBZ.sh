@@ -15,14 +15,16 @@ Installer_Files=(BonusCdMenu.sh BonusCdAutoInst.sh Common.sh AptSources.sh Confi
 ## Create a temporary directory to store the diskless image into and be sure
 ## it gets removed after we finish
 TEMP_DIR=$(mktemp -d)
+#TEMP_DIR="/var/tmp/DisklessTBZ"; mkdir -pv $TEMP_DIR
 
 function trap_EXIT() {
+	umount -fl $TEMP_DIR/var/cache/apt
 	umount -fl $TEMP_DIR/usr/pluto/deb-cache
 	umount -fl $TEMP_DIR/proc
 	umount -fl $TEMP_DIR/sys
 	umount -fl $TEMP_DIR/lib/modules/$(uname -r)/volatile
 
-	rm -rf $TEMP_DIR
+#	rm -rf $TEMP_DIR
 }
 
 trap "trap_EXIT" EXIT
@@ -93,7 +95,9 @@ cp /etc/resolv.conf "$TEMP_DIR"/etc/resolv.conf
 ## Create the temporary sources.list file for the media director 
 
 ## Enable some needed mount points
+mkdir -p $TEMP_DIR/var/cache/apt
 mkdir -p $TEMP_DIR/usr/pluto/deb-cache
+mount --bind /var/cache/apt $TEMP_DIR/var/cache/apt
 mount --bind /usr/pluto/deb-cache $TEMP_DIR/usr/pluto/deb-cache
 mount none -t sysfs $TEMP_DIR/sys
 mount none -t proc  $TEMP_DIR/proc
@@ -157,7 +161,8 @@ mv "$TEMP_DIR"/usr/sbin/lpadmin{.disabled,}
 
 
 ## Prevent discover from running as it blocks the system
-LC_ALL=C chroot "$TEMP_DIR" apt-get -y install discover1
+## FIXME: install discover1 instead for older distros
+LC_ALL=C chroot "$TEMP_DIR" apt-get -y install discover
 cp "$TEMP_DIR"/sbin/discover "$TEMP_DIR"/sbin/discover.disabled
 echo > "$TEMP_DIR"/sbin/discover
 
@@ -203,9 +208,12 @@ mv "$TEMP_DIR"/sbin/discover.disabled "$TEMP_DIR"/sbin/discover
 ## If libdvdcss2 is installed on the hybrid/core
 if [[ -d /usr/share/doc/libdvdcss2 ]] ;then
 	pushd $TEMP_DIR >/dev/null
-	wget --timeout=10 --tries=4 http://www.dtek.chalmers.se/groups/dvd/deb/libdvdcss2_1.2.5-1_i386.deb
-	chroot $TEMP_DIR dpkg -i /libdvdcss2_1.2.5-1_i386.deb
-	rm libdvdcss2_1.2.5-1_i386.deb
+
+#	wget --timeout=10 --tries=4 http://www.dtek.chalmers.se/groups/dvd/deb/libdvdcss2_1.2.5-1_i386.deb
+#	chroot $TEMP_DIR dpkg -i /libdvdcss2_1.2.5-1_i386.deb
+	chroot $TEMP_DIR apt-get install libdvdcss2
+#	rm libdvdcss2_1.2.5-1_i386.deb
+
 	popd
 fi
 
@@ -215,6 +223,7 @@ mv "$TEMP_DIR"/etc/rc2.d/*kdm "$TEMP_DIR"/etc/rc2.d/S99kdm
 
 chroot $TEMP_DIR apt-get -y install xserver-xorg-video-all
 
+umount $TEMP_DIR/var/cache/apt
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
