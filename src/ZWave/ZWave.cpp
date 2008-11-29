@@ -598,11 +598,108 @@ int ZWave::AddDevice(int parent, string sInternalID, int PK_DeviceTemplate) {
 	return iPK_Device;
 
 } 
-bool ZWave::DeleteDevice(int device_id) {
-
+bool ZWave::DeleteDevice(string sInternalID) {
+	DeviceData_Impl *pTargetChildDevice = NULL;
 	// CMD_Delete_Device del_command(m_dwPK_Device,DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST,device_id);
-	CMD_Delete_Device del_command(m_dwPK_Device,4,device_id);
-	SendCommand(del_command);
-	return true;
+        DeviceData_Impl *pChildDevice = NULL;
+        for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+                        it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+        {
+                pChildDevice = (*it);
+                if( pChildDevice != NULL )
+                {
+			int tmp_node_id = atoi(pChildDevice->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+			// check if child already exists
+			if ( tmp_node_id == atoi(sInternalID.c_str())) {
+				pTargetChildDevice = pChildDevice;
+			}
+
+			// iterate over embedded interfaces
+			DeviceData_Impl *pChildDevice1 = NULL;
+			for( VectDeviceData_Impl::const_iterator it1 = pChildDevice->m_vectDeviceData_Impl_Children.begin();
+				it1 != pChildDevice->m_vectDeviceData_Impl_Children.end(); ++it1 )
+			{
+				pChildDevice1 = (*it1);
+				if( pChildDevice1 != NULL )
+				{
+					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+					if ( tmp_node_id == atoi(sInternalID.c_str())) {
+						pTargetChildDevice = pChildDevice1;
+					}
+				}
+			}
+
+		}
+	}
+	if (pTargetChildDevice != NULL) {
+		CMD_Delete_Device del_command(m_dwPK_Device,4,pTargetChildDevice->m_dwPK_Device);
+		SendCommand(del_command);
+		return true;
+	} else {
+		return false;
+	}
 }
 
+string ZWave::GetCapabilities(string sInternalID) {
+	string sCapabilities;
+	/*	CMD_Get_Device_Data cmd_Get_Device_Data(
+			m_dwPK_Device, m_dwPK_Device_GeneralInfoPlugIn,
+			pDeviceData_Base->m_dwPK_Device, DEVICEDATA_PhoneNumber_CONST, true,
+			&sExtension
+		); */
+	return sCapabilities;
+}
+
+void ZWave::SetCapabilities(int PKDevice, string sCapabilities) {
+//void ZWave::SetCapabilities(string sInternalID, string sCapabilities) {
+	//int PKDevice = -1;
+//	LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Setting capabilities device data for ZWave node %d",atoi(sInternalID.c_str()));
+//	DeviceData_Impl *pChildDevice = InternalIDToDevice(sInternalID);
+//	if (pChildDevice != NULL) {
+//		PKDevice = pChildDevice->m_dwPK_Device;
+//	}
+	if (PKDevice != -1) {
+		LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Found LMCE Device %d",PKDevice);
+		CMD_Set_Device_Data cmd_Set_Device_Data(m_dwPK_Device, 4, PKDevice, sCapabilities.c_str(), DEVICEDATA_Capabilities_CONST);
+		SendCommand(cmd_Set_Device_Data);
+	}
+}
+
+void ZWave::SetManufacturerSpecificString(string sManufacturerSpecific) {
+
+}
+
+DeviceData_Impl *ZWave::InternalIDToDevice(string sInternalID) {
+        DeviceData_Impl *pChildDevice = NULL;
+
+        for( VectDeviceData_Impl::const_iterator it = m_pData->m_vectDeviceData_Impl_Children.begin();
+                        it != m_pData->m_vectDeviceData_Impl_Children.end(); ++it )
+        {
+                pChildDevice = (*it);
+                if( pChildDevice != NULL )
+                {
+			int tmp_node_id = atoi(pChildDevice->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+			// check if child exists
+			if ( tmp_node_id == atoi(sInternalID.c_str())) {
+				return pChildDevice;
+			}
+
+			// iterate over embedded interfaces
+			DeviceData_Impl *pChildDevice1 = NULL;
+			for( VectDeviceData_Impl::const_iterator it1 = pChildDevice->m_vectDeviceData_Impl_Children.begin();
+				it1 != pChildDevice->m_vectDeviceData_Impl_Children.end(); ++it1 )
+			{
+				pChildDevice1 = (*it1);
+				if( pChildDevice1 != NULL )
+				{
+					int tmp_node_id = atoi(pChildDevice1->m_mapParameters_Find(DEVICEDATA_PortChannel_Number_CONST).c_str());
+					if ( tmp_node_id == atoi(sInternalID.c_str())) {
+						return pChildDevice1;
+					}
+				}
+			}
+
+		}
+	}
+	return NULL;
+}

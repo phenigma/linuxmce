@@ -37,8 +37,9 @@ extern "C" void *start( void* );
 
 void *start( void *p )
 {
-ZWApi::ZWApi *base = static_cast<ZWApi::ZWApi*>(p);
-base->receiveFunction();
+	ZWApi::ZWApi *base = static_cast<ZWApi::ZWApi*>(p);
+	base->receiveFunction();
+	return NULL;
 }
 
 ZWApi::ZWApi::ZWApi(void *myZWave) {
@@ -90,7 +91,7 @@ void *ZWApi::ZWApi::init(const char *device) {
 	mybuf[0] = FUNC_ID_SERIAL_API_GET_INIT_DATA;
 	sendFunction( mybuf , 1, REQUEST, 0); 
 
-
+	return NULL;
 }
 
 void SendPopup(void *ref, char *message) {
@@ -106,6 +107,7 @@ char ZWApi::ZWApi::checksum(char *buf, int len) {
 }
 
 void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
+	ZWNode *newNode = NULL;
 	char tempbuf[512];
 	char tempbuf2[512];
 	if (frame[0] == RESPONSE) {
@@ -162,7 +164,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 				if (frame[6] != 0) {
 					// printf("***FOUND NODE:\n");
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"***FOUND NODE: %d",tmp_nodeid);
-					ZWNode *newNode = new ZWNode;
+					newNode = new ZWNode;
 					newNode->plutoDeviceTemplateConst=0;
 					newNode->typeBasic = (unsigned char) frame[5];
 					newNode->typeGeneric = (unsigned char) frame[6];
@@ -229,8 +231,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"GENERIC TYPE: Remote Switch");
 							// TODO: saner approach
 							//  we read the associations from groups one and two (left and right paddle on the ACT remote switch)
-							zwAssociationGet(tmp_nodeid,1);
-							zwAssociationGet(tmp_nodeid,2);
+							//zwAssociationGet(tmp_nodeid,1);
+							//zwAssociationGet(tmp_nodeid,2);
 							break;
 						;;
 						case GENERIC_TYPE_SWITCH_BINARY:
@@ -263,7 +265,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 					}
 
 				} else {
+					sprintf(tempbuf2, "%d", tmp_nodeid);
 					DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Invalid generic class (0x%x), ignoring device",(unsigned char)frame[6]);
+					DCEcallback->DeleteDevice(tempbuf2);
 				}
 				if (getIntentSize() == 0) {
 					// we got all protcol info responses
@@ -688,7 +692,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Reports to follow: %i",(unsigned char)frame[9]);
 							if ((length-10)>0) {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Nodes: ");
-								for (int i=0;i<(length-10);i++) {
+								for (unsigned int i=0;i<(length-10);i++) {
 									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"%i",(unsigned char)frame[10+i]);
 									if (tmp_nodelist.length()!=0) {
 										tmp_nodelist += ',';
@@ -870,17 +874,42 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 						break;
 					case UPDATE_STATE_NEW_ID_ASSIGNED:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"** Network change **: ID %d was assigned to a new Z-Wave node",(unsigned char)frame[3]);
+
+						newNode = new ZWNode;
+						newNode->plutoDeviceTemplateConst=0;
+						newNode->typeBasic = (unsigned char) frame[5];
+						newNode->typeGeneric = (unsigned char) frame[6];
+						newNode->typeSpecific = (unsigned char) frame[7];
+						newNode->stateBasic = -1;
+						newNode->associationList[0]="";
+						newNode->associationList[1]="";
+						newNode->associationList[2]="";
+						newNode->associationList[3]="";
+						newNode->plutoDeviceTemplateConst = getDeviceTemplate((unsigned char)frame[5],(unsigned char)frame[6],(unsigned char)frame[7],NULL,0);
+
+						ZWNodeMap.insert(std::map < int, ZWNode * >::value_type((unsigned char)frame[3],newNode));
+						char tmpstr2[1024];
+						if (newNode->plutoDeviceTemplateConst != 0) {
+							sprintf(tmpstr2, "%d", (unsigned char)frame[3]);
+							int iPKChildDevice = -1;
+							iPKChildDevice =  DCEcallback->AddDevice(0, tmpstr2, newNode->plutoDeviceTemplateConst);
+							if (iPKChildDevice != -1) {
+								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"** Network change **: Created dvice %d",iPKChildDevice);
+								DCEcallback->SetCapabilities(iPKChildDevice, "test tes t test ");
+							}
+						}
 						if (((unsigned int)frame[6] == 8) && ((unsigned int)frame[7] == 3)) {
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Setback schedule thermostat detected, triggering configuration");
 							zwWakeupSet((unsigned char)frame[3],30,true);
 						}
-						char tmpstr2[1024];
 						sprintf(tmpstr2,"Added new Z-Wave device: %d",(unsigned char)frame[3]);
 						SendPopup((void *)myZWave, tmpstr2);
 						break;
 					case UPDATE_STATE_DELETE_DONE:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"** Network change **: Z-Wave node %d was removed",(unsigned char)frame[3]);
 						char tmpstr[1024];
+						sprintf(tmpstr, "%d", (unsigned char)frame[3]);
+						DCEcallback->DeleteDevice(tmpstr);
 						sprintf(tmpstr,"Removed Z-Wave device: %d",(unsigned char)frame[3]);
 						SendPopup((void *)myZWave, tmpstr);
 						break;
@@ -916,6 +945,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 	} else {
 		// should not happen
 	}
+	return NULL;
 }
 
 void *ZWApi::ZWApi::receiveFunction() {
@@ -1049,7 +1079,8 @@ void *ZWApi::ZWApi::receiveFunction() {
 bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool response) {
 	ZWJob *newJob;
 	newJob = new ZWJob;
-	int i, index;
+	int index;
+	unsigned int i;
 	index = 0;
 	i = 0;
 
@@ -1084,7 +1115,8 @@ bool ZWApi::ZWApi::sendFunction(char *buffer, size_t length, int type, bool resp
 bool ZWApi::ZWApi::sendFunctionSleeping(int nodeid, char *buffer, size_t length, int type, bool response) {
 	ZWJob *newJob;
 	newJob = new ZWJob;
-	int i, index;
+	unsigned int i;
+	int index;
 	index = 0;
 	i = 0;
 
@@ -1181,7 +1213,7 @@ bool ZWApi::ZWApi::zwBasicSet(int node_id, int level) {
 		}
 	}
 
-
+	return true;
 }
 
 bool ZWApi::ZWApi::zwSendBasicReport(int node_id) {
@@ -1195,6 +1227,7 @@ bool ZWApi::ZWApi::zwSendBasicReport(int node_id) {
 	mybuf[5] = 0x00;
 	mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
 	sendFunction( mybuf , 7, REQUEST, 1);
+	return true;
 
 }
 
@@ -1216,6 +1249,7 @@ bool ZWApi::ZWApi::zwAssociationGet(int node_id, int group) {
 		sendFunction( mybuf , 7, REQUEST, 1);
 
 	}
+	return true;
 
 }
 
@@ -1238,6 +1272,7 @@ bool ZWApi::ZWApi::zwAssociationSet(int node_id, int group, int target_node_id) 
 		sendFunction( mybuf , 8, REQUEST, 1);
 
 	}
+	return true;
 
 }
 
@@ -1255,6 +1290,7 @@ bool ZWApi::ZWApi::zwAssignReturnRoute(int src_node_id, int dst_node_id) {
 	mybuf[1] = src_node_id;
 	mybuf[2] = 0x00;
         sendFunction( mybuf , 3, REQUEST, 1);
+	return true;
 
 } 
 
@@ -1279,6 +1315,7 @@ bool ZWApi::ZWApi::zwReplicateController(int mode) {
 		sendFunction( mybuf , 1, REQUEST, 0); 
 	}
 
+	return true;
 }
 
 bool ZWApi::ZWApi::zwSetDefault() {
@@ -1287,7 +1324,7 @@ bool ZWApi::ZWApi::zwSetDefault() {
 	DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Reset controller and erase all node information");
 	mybuf[0] = FUNC_ID_ZW_SET_DEFAULT;
 	sendFunction( mybuf , 1, REQUEST, 1); 
-
+	return true;
 }
 
 bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop, bool highpower) {
@@ -1303,6 +1340,7 @@ bool ZWApi::ZWApi::zwAddNodeToNetwork(int startstop, bool highpower) {
 		mybuf[1] = ADD_NODE_STOP;
 		sendFunction( mybuf , 2, REQUEST, 0); 
 	}
+	return true;
 }
 
 bool ZWApi::ZWApi::zwRemoveNodeFromNetwork(int startstop) {
@@ -1318,6 +1356,7 @@ bool ZWApi::ZWApi::zwRemoveNodeFromNetwork(int startstop) {
 		mybuf[1] = REMOVE_NODE_STOP;
 		sendFunction( mybuf , 2, REQUEST, 0); 
 	}
+	return true;
 }
 bool ZWApi::ZWApi::zwRemoveFailedNodeId(int nodeid) {
 	char mybuf[1024];
@@ -1327,6 +1366,7 @@ bool ZWApi::ZWApi::zwRemoveFailedNodeId(int nodeid) {
 	mybuf[1] = (unsigned char)nodeid;
 	sendFunction( mybuf , 2, REQUEST, 1); 
 
+	return true;
 }
 
 bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
@@ -1382,6 +1422,7 @@ bool ZWApi::ZWApi::zwConfigurationSet(int node_id,int parameter,int value) {
 
 	}
 
+	return true;
 }
 
 bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value, bool multi) {
@@ -1436,6 +1477,7 @@ bool ZWApi::ZWApi::zwWakeupSet(int node_id,int value, bool multi) {
 		DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE, "Nodeid: %i Value: %i",node_id,value);
 		sendFunction( mybuf , len, REQUEST, 1);
 	}
+	return true;
 }
 
 bool ZWApi::ZWApi::zwIsSleepingNode(int node_id) {
@@ -1532,6 +1574,7 @@ bool ZWApi::ZWApi::zwRequestNodeNeighborUpdate(int node_id) {
 	mybuf[0] = FUNC_ID_ZW_REQUEST_NODE_NEIGHBOR_UPDATE;
 	mybuf[1] = node_id;
 	sendFunction( mybuf , 2, REQUEST, 1);
+	return true;
 }
 void ZWApi::ZWApi::zwReadMemory(int offset) {
 	char mybuf[1024];

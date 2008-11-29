@@ -47,6 +47,7 @@ namespace DCE
 		int myDeviceID;
 
 		// Private methods
+		virtual DeviceData_Impl *InternalIDToDevice(string sInternalID);
 		
 public:
 		// Public member variables
@@ -65,7 +66,10 @@ public:
 		virtual void SendLightChangedEvents(unsigned short node_id, int value);
 		virtual void SendOrbiterPopup(const char *message); 
         	virtual int AddDevice(int parent, string sInternalID, int PK_DeviceTemplate);
-        	virtual bool DeleteDevice(int device_id);
+        	virtual bool DeleteDevice(string sInternalID);
+		virtual string GetCapabilities(string sInternalID);
+		virtual void SetCapabilities(int PKDevice, string sCapabilities);
+		virtual void SetManufacturerSpecificString(string sManufacturerSpecific);
 
 
 
