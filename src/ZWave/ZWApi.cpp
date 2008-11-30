@@ -149,6 +149,9 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								tempbuf[0]=FUNC_ID_ZW_GET_NODE_PROTOCOL_INFO;
 								tempbuf[1]=(i-5)*8+j+1;
 								sendFunction( tempbuf , 2, REQUEST, 0); 
+							} else {
+								sprintf(tempbuf,"%i",(i-5)*8+j+1);
+								DCEcallback->DeleteDevice(tempbuf);
 							}
 						}
 					}
@@ -895,7 +898,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							iPKChildDevice =  DCEcallback->AddDevice(0, tmpstr2, newNode->plutoDeviceTemplateConst);
 							if (iPKChildDevice != -1) {
 								DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"** Network change **: Created dvice %d",iPKChildDevice);
-								DCEcallback->SetCapabilities(iPKChildDevice, "test tes t test ");
+								DCEcallback->SetCapabilities(iPKChildDevice, nodeInfo2String(&(frame[8]),(unsigned char)frame[4]-3).c_str());
 							}
 						}
 						if (((unsigned int)frame[6] == 8) && ((unsigned int)frame[7] == 3)) {
@@ -1654,4 +1657,22 @@ void ZWApi::ZWApi::zwStatusReport() {
 
 void ZWApi::ZWApi::zwPollDevices(bool onoff) {
 	poll_state = onoff;
+}
+
+std::string ZWApi::ZWApi::nodeInfo2String(char *nodeInfo, size_t len) {
+
+	string tmp = "";
+	char tmp2[1000];
+
+	for (unsigned int i=0;i<len;i++) {
+		sprintf(tmp2,"%d",(unsigned char)nodeInfo[i]);
+		if (tmp == "") {
+			tmp += tmp2;
+		} else {
+			tmp += ",";
+			tmp  += tmp2;
+		}
+	}
+
+	return tmp;
 }

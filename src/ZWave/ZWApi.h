@@ -282,6 +282,8 @@ namespace ZWApi {
 
 	int getDeviceTemplate(int basic, int generic, int specific, char *nodeinfo, size_t len);
 
+	std::string nodeInfo2String(char *nodeinfo, size_t length);
+
 
       public:
 	 ZWApi(void *myZWave);
