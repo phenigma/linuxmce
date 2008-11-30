@@ -45,6 +45,7 @@
 #include "RA/RAServer.h"
 
 // #include "../include/version.h"
+#define  VERSION "<=version=>"
 
 using namespace std;
 using namespace sqlCVS;
@@ -324,7 +325,7 @@ int main( int argc, char *argv[] )
 	{
 
 //                123456789012345678901234567890123456789012345678901234567890
-		cout << "sqlCVS, v." << 666 << endl
+		cout << "sqlCVS, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h MySql hostname] [-u MySql username] " << endl
 			<< "[-p MySql password] [-D MySql database] [-P mysql port] " << endl
 			<< "[-H sqlCVS hostname] [-R sqlCVS port] " << endl
