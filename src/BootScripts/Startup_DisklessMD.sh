@@ -124,10 +124,23 @@ StartService "PVR-250 tuner restore" "/usr/pluto/bin/CaptureCards_BootConfig_PVR
 
 . /usr/pluto/bin/Config_Ops.sh
 export DISPLAY=:${Display}
-XPID=$(</var/run/plutoX$Display.pid)
-if [[ -z "$XPID" || ! -d /proc/"$XPID" ]] ;then
+if [ -r /var/run/plutoX${Display}.pid ]
+then
+	XPID=$(</var/run/plutoX${Display}.pid)
+else
+	XPID=""
+fi
+if [ -z "$XPID" -o ! -d /proc/"$XPID" ]
+then
 	/usr/pluto/bin/Start_X.sh -config /etc/X11/xorg.conf
 fi
 
 export KDE_DEBUG=1
-/usr/pluto/bin/lmce_launch_manager.sh
+if [ -x /usr/pluto/bin/lmce_launch_manager.sh ]
+then
+	/usr/pluto/bin/lmce_launch_manager.sh
+else
+	OrbiterID=$((PK_Device+2))
+	/usr/bin/screen -d -m -S OnScreen_Orbiter-${OrbiterID} /usr/pluto/bin/Spawn_Device.sh $OrbiterID $DCERouter LaunchOrbiter.sh
+fi
+
