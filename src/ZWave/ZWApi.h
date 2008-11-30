@@ -112,6 +112,8 @@
 #define GENERIC_TYPE_SEMI_INTEROPERABLE                 0x50
 #define GENERIC_TYPE_NON_INTEROPERABLE                  0xFF
 
+#define COMMAND_CLASS_MARK				0xef
+
 #define COMMAND_CLASS_BASIC				0x20
 #define BASIC_SET					0x01
 #define BASIC_GET					0x02
@@ -197,6 +199,68 @@
 #define MANUFACTURER_SPECIFIC_GET			0x04
 #define MANUFACTURER_SPECIFIC_REPORT			0x05
 
+#define COMMAND_CLASS_APPLICATION_STATUS 		0x22
+#define COMMAND_CLASS_ASSOCIATION_COMMAND_CONFIGURATION 0x9B
+#define COMMAND_CLASS_AV_CONTENT_DIRECTORY_MD		0x95
+#define COMMAND_CLASS_AV_CONTENT_SEARCH_MD		0x97
+#define COMMAND_CLASS_AV_RENDERER_STATUS		0x96
+#define COMMAND_CLASS_AV_TAGGING_MD			0x99
+#define COMMAND_CLASS_BASIC_WINDOW_COVERING		0x50
+#define COMMAND_CLASS_CHIMNEY_FAN			0x2A
+#define COMMAND_CLASS_COMPOSITE				0x8D
+#define COMMAND_CLASS_DOOR_LOCK				0x62
+#define COMMAND_CLASS_ENERGY_PRODUCTION			0x90
+#define COMMAND_CLASS_FIRMWARE_UPDATE_MD		0x7a
+#define COMMAND_CLASS_GEOGRAPHIC_LOCATION		0x8C
+#define COMMAND_CLASS_GROUPING_NAME			0x7B
+#define COMMAND_CLASS_HAIL				0x82
+#define COMMAND_CLASS_INDICATOR				0x87
+#define COMMAND_CLASS_IP_CONFIGURATION			0x9A
+#define COMMAND_CLASS_LANGUAGE				0x89
+#define COMMAND_CLASS_LOCK				0x76
+#define COMMAND_CLASS_MANUFACTURER_PROPRIETARY		0x91
+#define COMMAND_CLASS_METER_PULSE			0x35
+#define COMMAND_CLASS_METER				0x32
+#define COMMAND_CLASS_MTP_WINDOW_COVERING		0x51
+#define COMMAND_CLASS_MULTI_INSTANCE_ASSOCIATION	0x8E
+#define COMMAND_CLASS_MULTI_INSTANCE			0x60
+#define COMMAND_CLASS_NO_OPERATION			0x00
+#define COMMAND_CLASS_NODE_NAMING			0x77
+#define COMMAND_CLASS_NON_INTEROPERABLE			0xf0
+#define COMMAND_CLASS_POWERLEVEL			0x73
+#define COMMAND_CLASS_PROPRIETARY			0x88
+#define COMMAND_CLASS_PROTECTION			0x75
+#define COMMAND_CLASS_REMOTE_ASSOCIATION_ACTIVATE	0x7c
+#define COMMAND_CLASS_REMOTE_ASSOCIATION		0x7d
+#define COMMAND_CLASS_SCENE_ACTIVATION			0x2b
+#define COMMAND_CLASS_SCENE_ACTUATOR_CONF		0x2C
+#define COMMAND_CLASS_SCENE_CONTROLLER_CONF		0x2D
+#define COMMAND_CLASS_SCREEN_ATTRIBUTES			0x93
+#define COMMAND_CLASS_SCREEN_MD				0x92
+#define COMMAND_CLASS_SECURITY				0x98
+#define COMMAND_CLASS_SENSOR_ALARM			0x9C
+#define COMMAND_CLASS_SENSOR_CONFIGURATION		0x9E
+#define COMMAND_CLASS_SILENCE_ALARM			0x9d
+#define COMMAND_CLASS_SIMPLE_AV_CONTROL			0x94
+#define COMMAND_CLASS_SWITCH_BINARY			0x25
+#define COMMAND_CLASS_SWITCH_TOGGLE_BINARY		0x28
+#define COMMAND_CLASS_SWITCH_TOGGLE_MULTILEVEL		0x29
+#define COMMAND_CLASS_THERMOSTAT_FAN_MODE		0x44
+#define COMMAND_CLASS_THERMOSTAT_FAN_STATE		0x45
+#define COMMAND_CLASS_THERMOSTAT_HEATING		0x38
+#define COMMAND_CLASS_THERMOSTAT_MODE			0x40
+#define COMMAND_CLASS_THERMOSTAT_OPERATING_STATE	0x42
+#define COMMAND_CLASS_THERMOSTAT_SETBACK		0x47
+#define COMMAND_CLASS_THERMOSTAT_SETPOINT		0x43
+#define COMMAND_CLASS_TIME_PARAMETERS			0x8B
+#define COMMAND_CLASS_TIME				0x8a
+#define COMMAND_CLASS_USER_CODE				0x63
+#define COMMAND_CLASS_ZIP_ADV_CLIENT			0x34
+#define COMMAND_CLASS_ZIP_ADV_SERVER			0x33
+#define COMMAND_CLASS_ZIP_ADV_SERVICES			0x2F
+#define COMMAND_CLASS_ZIP_CLIENT			0x2e
+#define COMMAND_CLASS_ZIP_SERVER			0x24
+#define COMMAND_CLASS_ZIP_SERVICES			0x23
 
 #include <deque>
 #include <map>
@@ -229,7 +293,7 @@ namespace ZWApi {
 	int plutoDeviceTemplateConst;
 	// holds the device state (used by setback schedule thermostat)
 	int stateBasic;
-	std::string associationList[4];
+	 std::string associationList[4];
     };
 
     class ZWApi {
@@ -243,16 +307,16 @@ namespace ZWApi {
 	int serialPort;
 
 	// queue for sending
-	std::deque < ZWJob * >ZWSendQueue;
+	 std::deque < ZWJob * >ZWSendQueue;
 
 	// postpone queue for wakeup
-	std::multimap < int, ZWJob * >ZWWakeupQueue;
+	 std::multimap < int, ZWJob * >ZWWakeupQueue;
 
 	// intent queue to hold nodeids for now because get_node_protocol_info does not return a node id
-	std::deque < ZWIntent * >ZWIntentQueue;
+	 std::deque < ZWIntent * >ZWIntentQueue;
 
-	std::map < int, ZWNode * >ZWNodeMap;
-	std::map < int, ZWNode * >::iterator ZWNodeMapIt;
+	 std::map < int, ZWNode * >ZWNodeMap;
+	 std::map < int, ZWNode * >::iterator ZWNodeMapIt;
 
 	// will be filled with the pluto syntax to report child devices
 	 std::string deviceList;
@@ -280,9 +344,10 @@ namespace ZWApi {
 
 	void parseNodeInfo(int nodeid, char *nodeinfo, size_t length);
 
-	int getDeviceTemplate(int basic, int generic, int specific, char *nodeinfo, size_t len);
+	int getDeviceTemplate(int basic, int generic, int specific,
+			      char *nodeinfo, size_t len);
 
-	std::string nodeInfo2String(char *nodeinfo, size_t length);
+	 std::string nodeInfo2String(char *nodeinfo, size_t length);
 
 
       public:
@@ -305,13 +370,15 @@ namespace ZWApi {
 	// high level intent queue, abused for enumerating the nodes for now
 	bool addIntent(int nodeid, int type);
 	int getIntent(int type);
-	size_t getIntentSize() ;
+	size_t getIntentSize();
 
 
 	// adds a zwave job to the queue
-	bool sendFunction(char *buffer, size_t length, int type, bool response = 0);
+	bool sendFunction(char *buffer, size_t length, int type,
+			  bool response = 0);
 	// adds a zwave job to the wake up queue
-	bool sendFunctionSleeping(int nodeid, char *buffer, size_t length, int type, bool response = 0);
+	bool sendFunctionSleeping(int nodeid, char *buffer, size_t length,
+				  int type, bool response = 0);
 
 	// called by the zwave device to receive the deviceList string
 	 std::string getDeviceList();
@@ -341,17 +408,17 @@ namespace ZWApi {
 	bool zwSetDefault();
 
 	// add a node to the network
-	bool zwAddNodeToNetwork(int startstop,bool highpower);
+	bool zwAddNodeToNetwork(int startstop, bool highpower);
 
 	// remove a node from the network
 	bool zwRemoveNodeFromNetwork(int startstop);
 	bool zwRemoveFailedNodeId(int nodeid);
 
 	// configuration_set
-	bool zwConfigurationSet(int node_id,int parameter,int value);
+	bool zwConfigurationSet(int node_id, int parameter, int value);
 
 	// wakeup set
-	bool zwWakeupSet(int node_id,int value, bool multi);
+	bool zwWakeupSet(int node_id, int value, bool multi);
 
 	// check if device powers down the rf part to save power
 	bool zwIsSleepingNode(int node_id);
@@ -361,16 +428,16 @@ namespace ZWApi {
 
 	// test functions
 	void zwReadMemory(int offset);
-	void zwRequestManufacturerSpecificReport(int node_id); 
+	void zwRequestManufacturerSpecificReport(int node_id);
 
 	// request multilevel sensor report
-	void zwRequestMultilevelSensorReport(int node_id); 
+	void zwRequestMultilevelSensorReport(int node_id);
 
 	// request the version from a node
-	void zwRequestVersion(int node_id); 
+	void zwRequestVersion(int node_id);
 
 	// request the node information frame from a node
-	void zwRequestNodeInfo(int node_id); 
+	void zwRequestNodeInfo(int node_id);
 
 	// toggle polling
 	void zwPollDevices(bool onoff);
