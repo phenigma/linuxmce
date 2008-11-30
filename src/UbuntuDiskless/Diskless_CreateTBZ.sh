@@ -6,6 +6,11 @@
 DEVICEDATA_Architecture=112
 Architecture=$(apt-config dump | grep 'APT::Architecture' | sed 's/.*"\(.*\)".*/\1/g')
 
+if [ -z "$KVER" ]
+then
+	KVER=$(uname -r)
+fi
+
 DBST_SCRIPT='/usr/pluto/bin/Diskless_DebootstrapPluto.sh'
 ARH_DIR='/usr/pluto/install'
 DisklessFS="PlutoMD-${Architecture}.tar.bz2"
@@ -22,7 +27,7 @@ function trap_EXIT() {
 	umount -fl $TEMP_DIR/usr/pluto/deb-cache
 	umount -fl $TEMP_DIR/proc
 	umount -fl $TEMP_DIR/sys
-	umount -fl $TEMP_DIR/lib/modules/$(uname -r)/volatile
+	umount -fl $TEMP_DIR/lib/modules/${KVER}/volatile
 
 #	rm -rf $TEMP_DIR
 }
@@ -36,7 +41,8 @@ function create_initial_root_with_debootstrap {
 
 function create_initial_root_with_archive {
 	pushd $TEMP_DIR
-		tar -xvf "$ARH_DIR"/PlutoMD_Debootstraped.tar.bz2
+		echo "untarring $ARH_DIR/PlutoMD_Debootstraped.tar.bz2"
+		tar -xf "$ARH_DIR"/PlutoMD_Debootstraped.tar.bz2
 	popd
 }
 
@@ -145,7 +151,10 @@ LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install locales
 #chroot "$TEMP_DIR" locale-gen
 
 echo "Installing kernel"
-LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless linux-restricted-modules-`uname -r` linux-ubuntu-modules-`uname -r`
+LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless 
+#LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-image-diskless-${KVER} 
+LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-restricted-modules-${KVER}
+#LC_ALL=C chroot "$TEMP_DIR" apt-get -f -y install linux-ubuntu-modules-${KVER}
 
 ## Create a list of devices that will run on the md so we will know
 ## what software to preinstall there
@@ -227,7 +236,7 @@ umount $TEMP_DIR/var/cache/apt
 umount $TEMP_DIR/usr/pluto/deb-cache
 umount $TEMP_DIR/sys
 umount $TEMP_DIR/proc
-umount $TEMP_DIR/lib/modules/$(uname -r)/volatile
+umount $TEMP_DIR/lib/modules/${KVER}/volatile
 
 mv "$TEMP_DIR"/sbin/start-stop-daemon{.pluto-install,}
 mv "$TEMP_DIR"/usr/sbin/invoke-rc.d{.pluto-install,}
