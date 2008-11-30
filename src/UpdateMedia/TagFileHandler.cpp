@@ -153,6 +153,23 @@ void TagFileHandler::GetTagInfo(string sFilename, map<int,string>& mapAttributes
 		if(f->tag()->year() > 0)
 			mapAttributes[ATTRIBUTETYPE_Release_Date_CONST] = StringUtils::ltos(f->tag()->year());
 
+		// TODO: FIXME: use routines from PlutoUtils
+		//if (FileExists(BasePath(m_sFullFilename) + "/cover.jpg")) {
+		//}
+
+		string coverfilename = m_sFullFilename.substr(0,m_sFullFilename.find_last_of("/\\")) + "/cover.jpg";
+		cout << "fetching cover: "<< coverfilename << "\n";
+		FILE *coverart = fopen(coverfilename.c_str(), "rb");
+		if (coverart != NULL) {
+			fseek(coverart, 0, SEEK_END);
+			size_t nBinSize = (size_t)ftell(coverart);
+			if (nBinSize > 0) {
+				rewind(coverart);
+				char *pPictureData = new char[nBinSize];
+				fread(pPictureData, 1,nBinSize,coverart);	
+				listPictures.push_back(make_pair(pPictureData, nBinSize));
+			}
+		}
 		delete f;
 	}
 }
