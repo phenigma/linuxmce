@@ -136,9 +136,9 @@ libxtst-dev
 libxv-dev
 libxvmc-dev
 libxxf86vm-dev
-linux-headers-2.6.27-7-generic
-linux-image-2.6.27-7-generic
-linux-restricted-modules-2.6.27-7-generic
+linux-headers-2.6.27-9-generic
+linux-image-2.6.27-9-generic
+linux-restricted-modules-2.6.27-9-generic
 linux-source-2.6.27
 lirc-modules-source
 module-assistant
