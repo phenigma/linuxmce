@@ -24,6 +24,8 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$_SESSION['show_attributes']=isset($_SESSION['show_attributes'])?$_SESSION['show_attributes']:0;
  	$_SESSION['show_attributes']=isset($_REQUEST['show_attributes'])?$_REQUEST['show_attributes']:$_SESSION['show_attributes'];
  	
+	//EDIT BY PAUL MUMBY:
+	//Added doRecursive function to js below
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
@@ -49,6 +51,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					self.location="index.php?section=mainMediaFilesSync&path='.urlencode($path).'&action=delDir";
 				}
 			}
+
+			function doRecursive()
+			{
+				self.location="index.php?section=editMediaTagsRecursive&path='.urlencode($path).'";
+			}
 			
 			function createSubdir()
 			{
@@ -72,7 +79,10 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				<td align="right">'.quick_search_box().'</td>
 			<tr>
 		</table>
-					
+			<!--
+			EDIT BY PAUL MUMBY:
+			ADDED RECURSIVE BUTTON BELOW
+			--!>		
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>'.$TEXT_DIRECTORY_CONST.': '.$path.'</B></td>
@@ -80,6 +90,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					<td><input type="button" class="button" name="renameDir" value="'.$TEXT_RENAME_CONST.'" onClick="requestName(\''.addslashes($oldDir).'\')"></td>
 					<td><input type="button" class="button" name="subDir" value="'.$TEXT_CREATE_SUBDIRECTORY_CONST.'" onClick="createSubdir()"></td>
 					<td><input type="button" class="button" name="delDir" value="'.$TEXT_DELETE_CONST.'" onClick="confirmDel();"></td>
+					<td><input type="button" class="button" name="Recursive" value="'.$TEXT_RECURSIVE.'" onClick="doRecursive();"></td>
 				</tr>
 			</table>
  			<table>

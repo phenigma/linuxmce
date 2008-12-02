@@ -665,6 +665,13 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editMediaFile.php');
 	    editMediaFile($output,$mediadbADO,$dbADO);	    
 	break;
+	//ADDED BY PAUL MUMBY FOR RECURSIVE TAGGING CODE
+	case 'editMediaTagsRecursive':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editMediaTagsRecursive.php');
+	    editMediaTagsRecursive($output,$mediadbADO,$dbADO);	    
+	break;
 	case 'editDirectoryAttributes':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
@@ -690,18 +697,7 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editPlaylistAdvanced.php');
 	    editPlaylistAdvanced($output,$mediadbADO,$dbADO);	    
 	break;
-	case 'exportPlaylist':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/mediaBrowser/exportPlaylist.php');
-	    exportPlaylist($output,$mediadbADO,$dbADO);
-	break;
-	case 'importPlaylist':
-		$output = new Template($dbADO);
-		$output->setTemplateFileType('small');
-	    include_once('operations/mediaBrowser/importPlaylist.php');
-	    importPlaylist($output,$mediadbADO,$dbADO);
-	break;
+	
 	case 'powerFile':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
