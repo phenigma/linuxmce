@@ -198,9 +198,9 @@ while : ;do
 			fi
 			
 			if [[ "$isShareInList" != "0" ]] ;then
-				Log "Share $Share_ID ($Share_Name) is not advertised by the smb server"
-				SetDeviceOnline "$Share_ID" "0"
-				continue
+				Log "Share $Share_ID ($Share_Name) is not advertised by the smb server, trying any how"
+#				SetDeviceOnline "$Share_ID" "0"
+#				continue
 			fi
 
 			## Test if the share is still mountable with the username/password that we have
