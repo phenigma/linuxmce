@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# LMCEVDR installer package  
+# fasthack for 0710beta
+# Andre Burkart 2008-01-08 (2)
+
+clear
+echo ""
+echo ""
+echo "=== LMCE STUFF =="
+echo ""
+
+#channellist templates to lmce
+mkdir /usr/pluto/templates/vdr  > /dev/null
+cp lmce/channellists/* /usr/pluto/templates/vdr/.  > /dev/null
+
+#vdr lmce Database mappings
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS pluto_vdr;"
+cat lmce/pluto_vdr.dump | /usr/bin/mysql pluto_vdr
+
+#scripts for webadmin
+cp -a lmce/scripts/setVDR.sh /usr/pluto/bin/.  >/dev/null
+
+echo "======= LMCE SIDE DONE ========"
+
+#SETTINGS
+echo "preconfiguring the settings for VDR..."
+/etc/init.d/vdr stop
+sleep 5
+cp vdr/vdrsettings/svdrphosts.conf /etc/vdr/.  > /dev/null
+cp vdr/vdrsettings/remote.conf /var/lib/vdr/.  > /dev/null
+
+chown vdr:vdr /var/lib/vdr/*
+
+
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "++---------------------------- D O N E  --------------------------------------++"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo ""
+echo ""
+/etc/init.d/vdr restart
+

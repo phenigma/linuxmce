@@ -109,7 +109,7 @@ bool VDR::GetConfig()
 	}
 	
 	EVENT_Playback_Completed("",0,false);
- 	system("killall plutovdr");
+ 	system("killall vdr-sxfe");
 	Sleep(500);
  	pthread_create(&m_threadMonitorVDR, NULL, monitorVDRThread, NULL);
 	m_pDisplay = XOpenDisplay(getenv("DISPLAY")); 
@@ -185,7 +185,7 @@ VDR::~VDR()
 	delete m_pVDRSocket;
 	m_pVDRSocket = NULL;
 
- 	system("killall plutovdr");  // Be sure there's no front end running
+ 	system("killall vdr-sxfe");  // Be sure there's no front end running
 
 	if (m_pDisplay)
 		XCloseDisplay(m_pDisplay);
@@ -203,7 +203,7 @@ bool VDR::LaunchVDR(bool bSelectWindow)
 		//string sWidth = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenWidth_CONST);
 		//string sHeight = m_pEvent->GetDeviceDataFromDatabase(m_pData->m_dwPK_Device_ControlledVia, DEVICEDATA_ScreenHeight_CONST); 
 		DCE::CMD_Spawn_Application CMD_Spawn_Application(m_dwPK_Device,pDevice_App_Server->m_dwPK_Device,
-			"/usr/bin/plutovdr", "VDR.VDR", "--reconnect\t--fullscreen\txvdr://127.0.0.1:37890",
+			"/usr/bin/vdr-sxfe", "VDR.VDR", "--reconnect\t--fullscreen\txvdr://127.0.0.1:37890",
 			sMessage + "1",sMessage + "0",false,false,true,false);
 		if( SendCommand(CMD_Spawn_Application) )
 		{
@@ -346,7 +346,7 @@ void VDR::CMD_Stop_Media(int iStreamID,string *sMediaPosition,string &sCMD_Resul
 
 	StopVDRFrontend();
 	m_VDRStatus_set(VDRSTATUS_DISCONNECTED);
-	system("killall plutovdr");
+	system("killall vdr-sxfe");
 //	delete m_pVDRSocket;
 //	m_pVDRSocket = NULL;
 }

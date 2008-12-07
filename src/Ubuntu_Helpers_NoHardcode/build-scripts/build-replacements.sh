@@ -121,15 +121,25 @@ function Build_Replacements_Common
 	#Package: asterisk-perl
 	Build_Replacement_Package asterisk-perl external/asterisk-perl-0.10
 
+	#Package: lmcevdr
+	dir_="${svn_dir}/${svn_branch_name}"/ubuntu/lmcevdr-1.1
+	if Changed_Since_Last_Build "$dir_" 
+	then
+		DisplayMessage "Building lmcevdr"
+		pushd "$dir_"
+		dpkg-deb -b . ..
+		popd
+	fi
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/lmcevdr_*.deb ${replacements_dir}
+
+	#Package: vdr-plugin-control
+	Build_Replacement_Package vdr-plugin-control ubuntu/vdr-plugin-control-0.0.2a+lmce
+
 }
 
 function Build_Replacements_Intrepid
 {
 	mkdir -pv "$replacements_dir"
-
-	#Package: mythtv
-#	Build_Replacement_Package mythtv ubuntu/mythtv-0.20.2+fixes14472
-#	cp ${svn_dir}/${svn_branch_name}/ubuntu/{libmyth,ubuntu-mythtv}*.deb ${replacements_dir}
 
 	#Package: lirc
 	Build_Replacement_Package lirc ubuntu/lirc-0.8.3+lmce
@@ -283,8 +293,6 @@ function Build_Replacements_Gutsy
 trap 'Error "Undefined error in $0"' EXIT
 
 DisplayMessage "*** STEP: Building replacement debs"
-Build_Replacements_Common
-
 case "${build_name}" in
 	"gutsy")
 		Build_Replacements_Gutsy
@@ -296,6 +304,7 @@ case "${build_name}" in
 		Build_Replacements_Intrepid
 		;;
 esac
+Build_Replacements_Common
 
 DisplayMessage "Removing duplicate debs from replacements"
 remove_duplicate_debs "${replacements_dir}"

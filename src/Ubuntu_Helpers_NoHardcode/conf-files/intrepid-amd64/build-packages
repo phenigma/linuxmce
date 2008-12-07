@@ -4,6 +4,7 @@ autoconf
 automake
 build-essential
 ccache
+cdbs
 cvs
 debconf-utils
 debootstrap
@@ -49,6 +50,7 @@ libavcodec-dev
 libavformat-dev
 libbluetooth-dev
 libcaca-dev
+libcap-dev
 libcddb2-dev
 libcdio-dev
 libcdparanoia0-dev
@@ -94,6 +96,7 @@ libmp3lame-dev
 libmp4v2-dev
 libmpcdec-dev
 libmysqlclient15-dev
+libncursesw5-dev
 libpanel-applet2-dev
 libpcre3-dev
 libplasma-dev
@@ -160,6 +163,7 @@ quilt
 ruby-dev
 ruby1.8-dev
 sgmltools-lite
+sharutils
 squashfs-tools
 subversion
 swig
@@ -168,6 +172,7 @@ tcl8.4-dev
 texi2html
 texinfo
 transfig
+txt2man
 uuid-dev
 w3m
 x-dev
