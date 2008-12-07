@@ -29,7 +29,7 @@
 #include <AknProgressDialog.h>
 
 #include "VIPShared/VIPIncludes.h"
-#include "VipMenu.h"
+#include "VIPMenu.h"
 
 #define BD_PC_WHAT_DO_YOU_HAVE			1
 #define BD_CP_HAVE_NOTHING				100

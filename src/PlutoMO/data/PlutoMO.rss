@@ -4,8 +4,8 @@ NAME    FILE // 4 letter ID
 //  INCLUDES
 
 #include <eikon.rh>
-#include "plutomo.hrh"
-#include "plutomo.loc"
+#include "PlutoMO.hrh"
+#include "PlutoMO.loc"
 #include <avkon.rsg>
 #include <avkon.rh>
 #include <avkon.mbg>

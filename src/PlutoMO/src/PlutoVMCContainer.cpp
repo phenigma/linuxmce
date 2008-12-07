@@ -16,7 +16,7 @@
  */
 
 // INCLUDE FILES
-#include "plutomo.hrh"
+#include "PlutoMO.hrh"
 #include <avkon.hrh>
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
@@ -30,7 +30,6 @@
 #include <aknviewappui.h>
 #include <avkon.hrh>
 
-#include "PlutoMO.hrh"
 #include "PlutoVMCView.h"
 #include "PlutoVMCContainer.h" 
 #include "PlutoVMCUtil.h"

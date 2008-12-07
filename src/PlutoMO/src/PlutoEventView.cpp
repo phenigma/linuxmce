@@ -22,7 +22,7 @@
 #include <aknconsts.h>
 //#include <MultiViews.rsg>
 
-#include "PlutoMoAppUi.h"
+#include "PlutoMOAppUi.h"
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
 //#include "MultiViews.hrh"

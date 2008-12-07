@@ -1,7 +1,9 @@
 TARGET  PlutoMO.app
-TARGETTYPE  app
+TARGETTYPE  exe
 UID  0x100039CE 0x01ef0015 
 TARGETPATH \system\apps\PlutoMO
+
+CAPABILITY NONE
 
 MACRO   SYMBIAN
 MACRO	VIPPHONE
@@ -76,10 +78,11 @@ USERINCLUDE . ..\inc
 USERINCLUDE ..\..\BD
 USERINCLUDE ..\..\PlutoUtils
 USERINCLUDE ..\..\VIPShared
+USERINCLUDE ..\..\PlutoMO
 USERINCLUDE ..\..
-USERINCLUDE ..\..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+USERINCLUDE \root\symbian-sdks\s60_20\series60ex\helperfunctions
 
-SYSTEMINCLUDE   . \epoc32\include
+SYSTEMINCLUDE   . \root\symbian-sdks\s60_30\epoc32\include
 
 LIBRARY estor.lib
 LIBRARY euser.lib 

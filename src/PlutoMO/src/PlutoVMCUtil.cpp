@@ -15,7 +15,7 @@
  
  */
 //------------------------------------------------------------------------------------------------------------------
-#include "plutomo.hrh"
+#include "PlutoMO.hrh"
 #include <avkon.hrh>
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
