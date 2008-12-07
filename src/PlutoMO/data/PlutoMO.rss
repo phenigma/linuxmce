@@ -4,12 +4,14 @@ NAME    FILE // 4 letter ID
 //  INCLUDES
 
 #include <eikon.rh>
-#include "PlutoMO.hrh"
-#include "PlutoMO.loc"
 #include <avkon.rsg>
 #include <avkon.rh>
-#include <avkon.mbg>
-
+#ifdef EKA2
+#include <appinfo.rh>
+#endif
+#include "PlutoMO.hrh"
+// #include "PlutoMO.loc"
+#include "PlutoMO.rls"
 
 //  RESOURCE DEFINITIONS 
 
@@ -23,6 +25,20 @@ RESOURCE EIK_APP_INFO
     menubar=r_plutomo_menubar;
     cba=R_AVKON_SOFTKEYS_OPTIONS_BACK;     
     }
+
+#ifdef EKA2
+RESOURCE LOCALISABLE_APP_INFO r_plutomo_localisable_app_info
+    {
+    short_caption = STRING_plutomo_short_caption_string;
+    caption_and_icon =
+    CAPTION_AND_ICON_INFO
+        {
+        caption = STRING_plutomo_caption_string;
+        number_of_icons = 1;
+        icon_file = "\\resource\\apps\\PlutoMO.mif";
+      };
+    }
+#endif
 
 //----------------------------------------------------
 //   
@@ -91,14 +107,5 @@ RESOURCE MENU_PANE r_plutomo_app_menu
 //
 // ---------------------------------------------------------
 //
-RESOURCE TBUF r_icon_file_name
-	{ 
-	buf = ICON_FILE_NAME; 
-	}
-
-
-
-
-
 
 // End of File
