@@ -13,20 +13,18 @@
 [0x101F7961], 0, 0, 0, {"S60ProductID"}
 
 ; vendor
-%{"LinuxMCE.org-EN"}
-:"LinuxMCE.org"
+%{"Pluto-EN"}
+:"Pluto"
 
 "\root\symbian-sdks\s60_30\epoc32\release\gcce\urel\PlutoMO.exe"         -"!:\sys\bin\PlutoMO.exe"
 
-{
-"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.RSC"
-}
--"!:\resource\apps\PlutoMO.rsc"
+"\root\symbian-sdks\s60_30\epoc32\data\z\resource\apps\PlutoMO_3rd.rsc" -"!:\resource\apps\PlutoMO.rsc"
 
-; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_CAPTION.RSC" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
-; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.AIF"         -"!:\system\apps\PlutoMO\PlutoMO.aif"
-;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\private\10003a3f\PlutoMO.cfg"
-;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\private\10003a3f\PlutoEvent.png"
+"\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO.mif"         -"!:\resource\apps\PlutoMO.mif"
+"\root\symbian-sdks\s60_30\epoc32\data\z\private\10003a3f\import\apps\PlutoMO_reg.rsc" -"!:\private\10003a3f\import\apps\PlutoMO_reg.RSC"
 
-"\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO_reg.rsc" -"!:\private\10003a3f\import\apps\PlutoMO_reg.rsc"
+; "\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO_caption.rsc" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
+;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\resource\apps\PlutoMO.cfg"
+;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\private\A1ef0015\PlutoEvent.png"
+
 

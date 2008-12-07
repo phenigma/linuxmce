@@ -5,7 +5,7 @@ VENDORID 0
 
 EPOCSTACKSIZE 0x5000
 
-TARGETPATH \system\apps\PlutoMO
+// TARGETPATH \system\apps\PlutoMO
 
 CAPABILITY LocalServices  NetworkServices ReadUserData WriteUserData UserEnvironment
 
@@ -74,19 +74,22 @@ SOURCE  NotifyIncomingCall.cpp
 SOURCE  PlutoEventContainer.cpp
 SOURCE 	PlutoEventView.cpp
 
-START RESOURCE ..\data\PlutoMO.rss
+SOURCEPATH ..\data
+START RESOURCE PlutoMO_3rd.rss
+TARGETPATH \resource\apps
 HEADER
-TARGETPATH \resource\Apps
 END
 
-START RESOURCE ..\data\PlutoMO_caption.rss
-HEADER
-TARGETPATH \resource\Apps
-END
+// START RESOURCE PlutoMO_caption.rss
+// TARGETPATH \resource\apps
+// END
 
-START RESOURCE ..\data\PlutoMO_reg.rss
-HEADER
-TARGETPATH \private\10003a3f\apps
+START RESOURCE PlutoMO_reg.rss
+#ifdef winscw
+targetpath 	  \private\10003a3f\apps
+#else
+targetpath 	  \private\10003a3f\import\apps
+#endif
 END
 
 LANG     SC
@@ -129,6 +132,6 @@ LIBRARY logcli.lib
 //LIBRARY http.lib
 //LIBRARY InetProtUtil.lib 
 
-AIF PlutoMO.aif ..\aif PlutoMOaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
+// AIF PlutoMO.aif ..\aif PlutoMOaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
 
-SRCDBG
+// SRCDBG
