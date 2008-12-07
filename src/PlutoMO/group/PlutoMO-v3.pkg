@@ -6,25 +6,28 @@
 ;
 ; UID is the app's UID
 ;
-#{"PlutoMO"},(0x01483450),2,00,0
+#{"PlutoMO"},(0xA1ef0015),2,00,0
 
 ; Series 60 identifier
-(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
+;(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
+[0x101F7961], 0, 0, 0, {"S60ProductID"}
 
 ; vendor
+%{"LinuxMCE.org-EN"}
 :"LinuxMCE.org"
-%{"LinuxMCE.org"}
 
-"\root\symbian-sdks\s60_30\epoc32\release\gcce\urel\PlutoMO.app"         -"!:\system\apps\PlutoMO\PlutoMO.app"
+"\root\symbian-sdks\s60_30\epoc32\release\gcce\urel\PlutoMO.exe"         -"!:\sys\bin\PlutoMO.exe"
+
 {
 "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.RSC"
 }
--"!:\system\apps\PlutoMO\PlutoMO.rsc"
+-"!:\resource\apps\PlutoMO.rsc"
 
-"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_CAPTION.RSC" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
-"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.AIF"         -"!:\system\apps\PlutoMO\PlutoMO.aif"
-"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\system\apps\PlutoMO\PlutoMO.cfg"
-"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\system\apps\PlutoMO\PlutoEvent.png"
+; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_CAPTION.RSC" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
+; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_REG.RSC" -"!:\system\apps\PlutoMO\PlutoMO_reg.rsc"
+; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.AIF"         -"!:\system\apps\PlutoMO\PlutoMO.aif"
+;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\private\10003a3f\PlutoMO.cfg"
+;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\private\10003a3f\PlutoEvent.png"
 
-
+"\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO_reg.rsc" -"!:\private\10003a3f\import\apps\PlutoMO_reg.rsc"
 
