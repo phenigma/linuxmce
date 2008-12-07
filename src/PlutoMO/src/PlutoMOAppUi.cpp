@@ -510,7 +510,7 @@ void CPlutoMOAppUi::UpdateScreen(
 		for (unsigned int i = 0; i < FilePath.length(); i++)
 			aPath.Append(FilePath[i]);
 
-		for (i = 0; i < iVMCFileNameSize; i++)
+		for (int i = 0; i < iVMCFileNameSize; i++)
 			aPath.Append(pVMCFileName[i]);
 		
 		SaveFile(FilePath.length(), string(aPath).c_str(), iVMCSize, pVMC);

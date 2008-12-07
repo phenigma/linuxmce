@@ -5,6 +5,8 @@ TARGETPATH \system\apps\PlutoMO
 
 CAPABILITY NONE
 
+EPOCCALLDLLENTRYPOINTS
+
 MACRO   SYMBIAN
 MACRO	VIPPHONE
 
@@ -94,7 +96,7 @@ LIBRARY eikcoctl.lib
 LIBRARY avkon.lib 
 LIBRARY bafl.lib 
 LIBRARY apmime.lib 
-LIBRARY CommonUI.lib 
+LIBRARY commonui.lib 
 LIBRARY esock.lib
 LIBRARY bluetooth.lib
 LIBRARY apgrfx.lib

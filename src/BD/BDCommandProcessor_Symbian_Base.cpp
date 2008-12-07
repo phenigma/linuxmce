@@ -194,25 +194,27 @@ void  BDCommandProcessor_Symbian_Base::SetupSecurityManager()
 	RBTMan secManager;
 
 	// a security session
-	RBTSecuritySettings secSettingsSession;
+	TBTServiceSecurity secSettingsSession;
 
 	// define the security on this port
-	User::LeaveIfError(secManager.Connect());
-	CleanupClosePushL(secManager);
-	User::LeaveIfError(secSettingsSession.Open(secManager));
-	CleanupClosePushL(secSettingsSession);
+	//User::LeaveIfError(secManager.Connect());
+	//CleanupClosePushL(secManager);
+	//User::LeaveIfError(secSettingsSession.Open(secManager));
+	//CleanupClosePushL(secSettingsSession);
 
 	// the security settings 
-	TBTServiceSecurity serviceSecurity( KUidPlutoMO, KSolBtRFCOMM, 0 );
+	// TBTServiceSecurity serviceSecurity( KUidPlutoMO, KSolBtRFCOMM, 0 );
+	TBTServiceSecurity serviceSecurity;
 
 	//Define security requirements
+	serviceSecurity.SetUid(KUidPlutoMO);    
 	serviceSecurity.SetAuthentication(false);    
 	serviceSecurity.SetEncryption(false); 
 	serviceSecurity.SetAuthorisation(false);
 
-	serviceSecurity.SetChannelID(KPlutoMOPort );
+	// serviceSecurity.SetChannelID(KPlutoMOPort );
 	TRequestStatus status;
-	secSettingsSession.RegisterService(serviceSecurity, status);
+	// secSettingsSession.RegisterService(serviceSecurity, status);
 
 	User::WaitForRequest( status ); // wait until the security settings are set
 	User::LeaveIfError( status.Int() );
