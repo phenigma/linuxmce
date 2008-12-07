@@ -1,0 +1,30 @@
+;
+; Installation file for PlutoMO application - lite version
+;
+;Languages
+&EN
+;
+; UID is the app's UID
+;
+#{"PlutoMO"},(0x01483450),2,00,0
+
+; Series 60 identifier
+(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
+
+; vendor
+:"LinuxMCE.org"
+%{"LinuxMCE.org"}
+
+"\root\symbian-sdks\s60_30\epoc32\release\gcce\urel\PlutoMO.app"         -"!:\system\apps\PlutoMO\PlutoMO.app"
+{
+"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.RSC"
+}
+-"!:\system\apps\PlutoMO\PlutoMO.rsc"
+
+"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_CAPTION.RSC" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
+"\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.AIF"         -"!:\system\apps\PlutoMO\PlutoMO.aif"
+"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\system\apps\PlutoMO\PlutoMO.cfg"
+"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\system\apps\PlutoMO\PlutoEvent.png"
+
+
+
