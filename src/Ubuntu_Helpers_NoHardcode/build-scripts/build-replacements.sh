@@ -42,7 +42,6 @@ function Build_Replacement_Package
 		pushd "$dir_"
 		echo "dpkg-buildpackage -rfakeroot -us -uc -b -tc"
 		dpkg-buildpackage -rfakeroot -us -uc -b -tc
-#		dpkg-buildpackage -rfakeroot -us -uc -b -nc
 		cp -r ../${pkg_name}*.deb "${replacements_dir}"
 		popd
 	fi
@@ -141,10 +140,22 @@ function Build_Replacements_Intrepid
 {
 	mkdir -pv "$replacements_dir"
 
+#	#Package: lirc
+#	Build_Replacement_Package lirc ubuntu/lirc-0.8.3+lmce
+#	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
+#	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
+
 	#Package: lirc
-	Build_Replacement_Package lirc ubuntu/lirc-0.8.3+lmce
-	cp ${svn_dir}/${svn_branch_name}/ubuntu/lirc-x*.deb ${replacements_dir}
-	cp ${svn_dir}/${svn_branch_name}/ubuntu/liblircclient{0,-dev}_*.deb ${replacements_dir}
+# NOTE: using "dpkg-buildpackage ... -tc" makes building lirc fail randomly
+	dir_="${svn_dir}/${svn_branch_name}/ubuntu/lirc-0.8.3+lmce"
+	if Changed_Since_Last_Build "$dir_" ;then
+		DisplayMessage "Building lirc"
+		pushd "$dir_"
+		echo "dpkg-buildpackage -rfakeroot -us -uc -b"
+		dpkg-buildpackage -rfakeroot -us -uc -b
+		cp -r ../lirc*.deb "${replacements_dir}"
+		popd
+	fi
 
 	#Package: zaptel-modules
 	DisplayMessage "Building zaptel-modules"
@@ -200,6 +211,9 @@ function Build_Replacements_Gutsy
 
 	#Package: spcp8x5
 	Build_Replacement_Package spcp8x5 ubuntu/spcp8x5
+
+	#Package: fuppes
+	Build_Replacement_Package fuppes ubuntu/fuppes-0+svn578
 
 	#Package: libxine
 	Build_Replacement_Package libxine ubuntu/xine-lib-1.1.10.1
