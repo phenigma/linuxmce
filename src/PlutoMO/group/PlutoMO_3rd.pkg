@@ -6,7 +6,7 @@
 ;
 ; UID is the app's UID
 ;
-#{"PlutoMO"},(0xA1ef0015),2,00,0
+#{"PlutoMO"},(0xA1ef0015),2,01,0
 
 ; Series 60 identifier
 ;(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
@@ -24,7 +24,6 @@
 -"!:\resource\apps\PlutoMO.rsc"
 
 ; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_CAPTION.RSC" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
-; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO_REG.RSC" -"!:\system\apps\PlutoMO\PlutoMO_reg.rsc"
 ; "\usr\src\svn\charon-merge\src\PlutoMO\group\Res\PLUTOMO.AIF"         -"!:\system\apps\PlutoMO\PlutoMO.aif"
 ;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\private\10003a3f\PlutoMO.cfg"
 ;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\private\10003a3f\PlutoEvent.png"
