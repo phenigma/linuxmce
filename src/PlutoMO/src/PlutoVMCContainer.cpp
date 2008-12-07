@@ -35,7 +35,7 @@
 #include "PlutoVMCUtil.h"
 #include "PlutoMOAppUi.h"
 
-#include "Pluto_Main/Define_Button.h"
+#include "pluto_main/Define_Button.h"
 #include "VIPShared/BD_PC_SetImageQuality.h"
 
 #include "Logger.h"

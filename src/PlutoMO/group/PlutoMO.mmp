@@ -58,7 +58,7 @@ SOURCE  PlutoMOApp.cpp
 SOURCE  PlutoMOAppUi.cpp
 SOURCE  PlutoMODocument.cpp
 SOURCE  PlutoMOContainer.cpp
-SOURCE  PlutoMOEngine.cpp
+SOURCE  PlutoMOengine.cpp
 SOURCE  PlutoVMCContainer.cpp
 SOURCE  PlutoVMCUtil.cpp
 SOURCE  PlutoVMCView.cpp

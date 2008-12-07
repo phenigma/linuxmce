@@ -23,7 +23,7 @@
 #include "palbimageviewerbasic.h"
 
 #include "PlutoUtils/MyString.h"
-#include "PlutoMOEngine.h"
+#include "PlutoMOengine.h"
 #include "PlutoMO.hrh"     // enumerations
 
 #include "PlutoMOAppUi.h"

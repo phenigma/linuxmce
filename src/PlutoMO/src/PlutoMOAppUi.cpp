@@ -21,8 +21,8 @@
 #include <e32base.h>
 #include <http.h>
 #include <chttpformencoder.h>
-#include <http\rhttpsession.h>
-#include <http\mhttptransactioncallback.h>
+#include <http/rhttpsession.h>
+#include <http/mhttptransactioncallback.h>
 #include "eikmenub.h"
 #include <aknnotewrappers.h> 
 #include <AknGlobalConfirmationQuery.h>
@@ -37,14 +37,14 @@
 #include "Logger.h"
 #include "PlutoDefs.h"
 #include "PlutoVMCView.h"
-#include "GetCallerId.h"
+#include "GetCallerID.h"
 #include "NotifyIncomingCall.h"
 #include "LineReader.h"
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
 //----------------------------------------------------------------------------------------------
 //test - not used
-#include "httpclient.h"
+#include "HttpClient.h"
 //----------------------------------------------------------------------------------------------
 char CPlutoMOAppUi::GetCurrentDrive()
 {
