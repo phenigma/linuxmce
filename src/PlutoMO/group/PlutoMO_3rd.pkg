@@ -17,14 +17,18 @@
 :"Pluto"
 
 "\root\symbian-sdks\s60_30\epoc32\release\gcce\urel\PlutoMO.exe"         -"!:\sys\bin\PlutoMO.exe"
-
-"\root\symbian-sdks\s60_30\epoc32\data\z\resource\apps\PlutoMO_3rd.rsc" -"!:\resource\apps\PlutoMO.rsc"
-
+"\root\symbian-sdks\s60_30\epoc32\data\z\resource\apps\PlutoMO.rsc" -"!:\resource\apps\PlutoMO.rsc"
 "\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO.mif"         -"!:\resource\apps\PlutoMO.mif"
 "\root\symbian-sdks\s60_30\epoc32\data\z\private\10003a3f\import\apps\PlutoMO_reg.rsc" -"!:\private\10003a3f\import\apps\PlutoMO_reg.RSC"
 
-; "\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO_caption.rsc" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
+
+; "\root\symbian-sdks\s60_30\epoc32\data\z\resource\apps\PlutoMO_3rd.rsc" -"!:\resource\apps\PlutoMO_3rd.rsc"
+;"\root\symbian-sdks\s60_30\epoc32\data\z\resource\Apps\PlutoMO_caption.rsc" -"!:\resource\apps\PlutoMO_caption.rsc"
+
+
 ;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoMO.cfg"         -"!:\resource\apps\PlutoMO.cfg"
 ;"\usr\src\svn\charon-merge\src\PlutoMO\group\PlutoEvent.png"         -"!:\private\A1ef0015\PlutoEvent.png"
+"PlutoMO.cfg"         -"!:\private\A1ef0015\PlutoMO.cfg"
+"PlutoEvent.png"         -"!:\private\A1ef0015\PlutoEvent.png"
 
 

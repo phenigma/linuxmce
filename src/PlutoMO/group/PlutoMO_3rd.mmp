@@ -3,7 +3,7 @@ TARGETTYPE exe
 UID 0x100039CE 0xA1ef0015
 VENDORID 0
 
-EPOCSTACKSIZE 0x5000
+// EPOCSTACKSIZE 0x5000
 
 // TARGETPATH \system\apps\PlutoMO
 
@@ -75,7 +75,7 @@ SOURCE  PlutoEventContainer.cpp
 SOURCE 	PlutoEventView.cpp
 
 SOURCEPATH ..\data
-START RESOURCE PlutoMO_3rd.rss
+START RESOURCE PlutoMO.rss
 TARGETPATH \resource\apps
 HEADER
 END

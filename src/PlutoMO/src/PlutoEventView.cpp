@@ -39,7 +39,12 @@ CPlutoEventView::~CPlutoEventView()
 
 void CPlutoEventView::ConstructL()
     {
+#ifdef __SERIES60_30__
+    // BaseConstructL(EAknEnableSkin);
     BaseConstructL();
+#else
+    BaseConstructL();
+#endif
     }
 
 

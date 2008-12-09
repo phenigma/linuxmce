@@ -18,7 +18,7 @@ CLEANLIB : do_nothing
 
 RESOURCE :	
 	mifconv $(ICONTARGETFILENAME) \
-		/c32 ..\gfx\PlutoMO.png
+		/c32 ..\gfx\test.svg
 
 FREEZE : do_nothing
 
