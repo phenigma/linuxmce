@@ -1783,6 +1783,17 @@ void ZWApi::ZWApi::parseNodeInfo(int nodeid, char *nodeinfo, size_t length) {
 		}
 
 	}
+
+	// TODO: this should really go into a seperate function with device detection
+
+	if (multicommand) {
+		if (wakeup) zwWakeupSet(nodeid,15,true); // wakeup interval
+
+	} else {
+		if (manufacturerspecific) zwRequestManufacturerSpecificReport(nodeid);
+		if (wakeup) zwWakeupSet(nodeid,60,false); // wakeup interval
+		if (association) zwAssociationSet(nodeid, 1, ournodeid); // associate to group 1
+	}
 }
 
 int ZWApi::ZWApi::getDeviceTemplate(int basic, int generic, int specific, char *nodeinfo, size_t len) {
