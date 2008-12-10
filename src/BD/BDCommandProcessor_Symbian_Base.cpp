@@ -31,7 +31,12 @@
 
 #include "BD_PC_ReportMyVersion.h"
 
+#ifdef __SERIES60_30__
+_LIT(KPlutoMODirCurrConnection,"\\private\\A1ef0015\\0000.vmc");
+#else
 _LIT(KPlutoMODirCurrConnection,"c:\\system\\Apps\\PlutoMO\\0000.vmc");
+#endif
+
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
@@ -216,11 +221,11 @@ void  BDCommandProcessor_Symbian_Base::SetupSecurityManager()
 	TRequestStatus status;
 	// secSettingsSession.RegisterService(serviceSecurity, status);
 
-	User::WaitForRequest( status ); // wait until the security settings are set
-	User::LeaveIfError( status.Int() );
+	//User::WaitForRequest( status ); // wait until the security settings are set
+	//User::LeaveIfError( status.Int() );
 
-	CleanupStack::PopAndDestroy();  //  secManager
-	CleanupStack::PopAndDestroy();  //  secSettingsSession
+	//CleanupStack::PopAndDestroy();  //  secManager
+	//CleanupStack::PopAndDestroy();  //  secSettingsSession
 
 }
 //----------------------------------------------------------------------------------------------
