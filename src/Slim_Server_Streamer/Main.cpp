@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bAppError = false;
-	bool bReload=false;
+	bool bReload = false;
 	try
 	{
 		Slim_Server_Streamer *pSlim_Server_Streamer = new Slim_Server_Streamer(PK_Device, sRouter_IP,true,bLocalMode);
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

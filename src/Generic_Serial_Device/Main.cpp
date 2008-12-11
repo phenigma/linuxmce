@@ -129,10 +129,10 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->
 /** @class main
 See the Main.cpp file docs for more documentation.
 */
+//<-dceag-main-b->
 int main(int argc, char* argv[])
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
@@ -200,7 +200,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-    // This section will set up a logger if possible.
 	try
 	{
 		if( sLogger=="dcerouter" )
@@ -219,7 +218,7 @@ int main(int argc, char* argv[])
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bAppError = false;
-	bool bReload=false;
+	bool bReload = false;
 	try
 	{
 		Generic_Serial_Device *pGeneric_Serial_Device = new Generic_Serial_Device(PK_Device, sRouter_IP,true,bLocalMode);
@@ -268,7 +267,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

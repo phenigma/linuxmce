@@ -633,7 +633,7 @@ void Disk_Drive::CMD_Abort_Task(int iParameter_ID,string &sCMD_Result,Message *p
 //<-dceag-c914-b->
 
 	/** @brief COMMAND: #914 - Get Disk Info */
-	/**  */
+	/** Retrieve the information on the current disk */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #157 Disks */

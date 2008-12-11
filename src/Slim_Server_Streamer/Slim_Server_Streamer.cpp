@@ -162,7 +162,7 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 //<-dceag-c249-b->
 
 	/** @brief COMMAND: #249 - Start Streaming */
-	/** Starts streaming */
+	/** Like play media, but it means the destination device is not the same as the source */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #41 StreamID */

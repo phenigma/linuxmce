@@ -308,7 +308,7 @@ public:
 
 
 	/** @brief COMMAND: #914 - Get Disk Info */
-	/**  */
+	/** Retrieve the information on the current disk */
 		/** @param #29 PK_MediaType */
 			/** The type of media */
 		/** @param #157 Disks */

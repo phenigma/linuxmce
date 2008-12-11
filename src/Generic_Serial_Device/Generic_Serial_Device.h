@@ -39,8 +39,6 @@ Requires 2 other modules to be present:
 #include "GSDMessageProcessing.h"
 
 
-//<-dceag-decl-b->!
-
 /** @namespace DCE
 The Data Commands and Events (DCE) namespace.
 
@@ -63,8 +61,6 @@ GSD devices that control a/v equipment, lighting, etc., can be done
 in as little as an hour or two, almost never more than a day for
 complex protocols.
 */
-namespace DCE
-{
 
 /** @class Generic_Serial_Device
 A class for adding support for new devices.
@@ -88,6 +84,10 @@ GSD devices that control a/v equipment, lighting, etc., can be done
 in as little as an hour or two, almost never more than a day for
 complex protocols.
 */
+
+//<-dceag-decl-b->!
+namespace DCE
+{
 	class Generic_Serial_Device :
 			public Generic_Serial_Device_Command,
 			public GSDMessageProcessor
@@ -101,8 +101,6 @@ public:
 		static bool m_bStopLogging;
 		static int m_FdPipe[2];
 
-//<-dceag-const-b->
-public:
 		/** Constructors
         @param DeviceID is the device ident.
         @param ServerAddress is the IP address of the server.
@@ -110,18 +108,14 @@ public:
         @param bLocalMode is the local flag.
         @param pRouter ia a pointer to the router instance.
         */
-		Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 
         /** Destructor */
-		virtual ~Generic_Serial_Device();
 
         /** Get the config */
-		virtual bool GetConfig();
 
         /** Register the serial device.
         @returns false as it empty registration a present.
         */
-		virtual bool Register();
 
         /** ReceivedCommandForChild.
         @param pDeviceData_Impl is a pointer to the DeviceData_Impl.
@@ -135,7 +129,6 @@ public:
           in ReceivedCommandForChild, where pDeviceData_Base is the child device.
         If you handle the message, you should change the sCMD_Result to OK.
         */
-		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 
         /** ReceivedUnknownCommand.
         @param sCMD_Result is the address where the result is stored.
@@ -145,6 +138,15 @@ public:
           then ReceivedUnknownCommand gets called.
         If you handle the message, you should change the sCMD_Result to OK.
         */
+
+//<-dceag-const-b->
+public:
+		// Constructors/Destructor
+		Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~Generic_Serial_Device();
+		virtual bool GetConfig();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 

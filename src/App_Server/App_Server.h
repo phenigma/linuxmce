@@ -30,21 +30,20 @@ The main portion of app_server.
 #include "amix.h"
 #endif
 
+    /** @class App_Server
+    The main class of App_Server.
+    */
+
 //<-dceag-decl-b->
 namespace DCE
 {
 
-    /** @class App_Server
-    The main class of App_Server.
-    */
 	class App_Server : public App_Server_Command
 	{
 //<-dceag-decl-e->
 protected:
 		virtual void EnsureLogoIsDisplayed();
 
-//<-dceag-const-b->
-public:
     /** Constructor.
     @param DeviceID is the device ID.
     @param ServerAddress is
@@ -54,21 +53,17 @@ public:
 
     The primary constructor - when the class is created as a stand-alone device
     */
-		App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 
         /** Standard Destructor.
         */
-		virtual ~App_Server();
 
         /** Fill in the config information.
         */
-		virtual bool GetConfig();
 
         /** Register the device.
         This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.
         Otherwise Connect() will be called from the main().
         */
-		virtual bool Register();
 
         /** ReceivedCommandForChild.
 
@@ -80,7 +75,6 @@ public:
     pDeviceData_Base is the child device.
         If you handle the message, you should change the sCMD_Result to OK.
         */
-		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 
         /** ReceivedUnknownCommand.
 
@@ -88,6 +82,15 @@ public:
     then ReceivedUnknownCommand gets called.
         If you handle the message, you should change the sCMD_Result to OK.
         */
+
+//<-dceag-const-b->
+public:
+		// Constructors/Destructor
+		App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~App_Server();
+		virtual bool GetConfig();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
         virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 

@@ -144,9 +144,9 @@ public:
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
-			/**  */
+			/** position X */
 		/** @param #12 Position Y */
-			/**  */
+			/** position Y */
 
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
@@ -299,7 +299,7 @@ public:
 	/** @brief COMMAND: #91 - Input Select */
 	/** toggle inputs */
 		/** @param #71 PK_Command_Input */
-			/** The Input to select */
+			/** The Input to select, or 0=toggle  */
 
 	virtual void CMD_Input_Select(int iPK_Command_Input) { string sCMD_Result; CMD_Input_Select(iPK_Command_Input,sCMD_Result,NULL);};
 	virtual void CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
@@ -496,7 +496,7 @@ public:
 
 
 	/** @brief COMMAND: #367 - Text */
-	/**  */
+	/** Text */
 
 	virtual void CMD_Text() { string sCMD_Result; CMD_Text(sCMD_Result,NULL);};
 	virtual void CMD_Text(string &sCMD_Result,Message *pMessage);

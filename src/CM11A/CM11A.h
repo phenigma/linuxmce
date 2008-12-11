@@ -29,14 +29,10 @@ Handle the X10 CM11A interface module.
 #include "devicepoll.h"
 #include <map>
 
-//<-dceag-decl-b->
-
 /**
 @namespace DCE
 The Data Commands and Events (DCE) namespace.
 */
-namespace DCE
-{
 
 /**
 @class CM11A
@@ -50,6 +46,11 @@ It will formulate the actual messages.
 The CM11A_Command class comes from Gen_Devices/CM11ABase.h.
 */
 
+//<-dceag-decl-b->
+
+namespace DCE
+{
+
 	class CM11A : public CM11A_Command
 	{
 //<-dceag-decl-e->
@@ -59,7 +60,6 @@ The CM11A_Command class comes from Gen_Devices/CM11ABase.h.
 public:
 		// Public member variables
 
-//<-dceag-const-b->
 public:
 		/** Constructor
 @param DeviceID is an int.
@@ -68,31 +68,37 @@ public:
 @param bLocalMode is ???
 @param pRouter is ???
         */
-		CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+
         /** Standard destructor */
-		virtual ~CM11A();
 
         /** GetConfig
         @returns success flag
         */
-		virtual bool GetConfig();
 
         /** Register is used to check if a device is registered
         @returns registered flag
         */
-		virtual bool Register();
 
         /** ReceivedCommandForChild is
         @param pDeviceData_Impl is a pointer to ???
         @param sCMD_Result is a string ???
         @param pMessage is a pointer to ???
         */
-		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result, Message *pMessage);
 
         /** ReceivedUnknownCommand is called when an error happens.
         @param sCMD_Result is ???
         @param pMessage is the message that was incorrect
         */
+
+//<-dceag-const-b->
+public:
+		// Constructors/Destructor
+
+		CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~CM11A();
+		virtual bool GetConfig();
+		virtual bool Register();
+		virtual void ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 

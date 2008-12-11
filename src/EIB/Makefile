@@ -6,9 +6,9 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = EIB
 VERSION = 2.0.0
@@ -19,9 +19,9 @@ sources = Main.cpp EIB.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
+CPPFLAGS += -I/usr/include/mysql
 LDFLAGS +=
-XTRALDLIBS = -lSerial -lrt
+XTRALDLIBS = -lSerial -lrt -lmysqlclient_r
 
 Gen_Dev_Files +=
 sources += messagepool.cpp busconnector.cpp message.cpp thread.cpp mutex.cpp event.cpp bauinitmessage.cpp ackmessage.cpp statemachine.cpp telegrammessage.cpp monitorrequestmessage.cpp timetracker.cpp extendedserialport.cpp duplicatefilterpoolinterceptor.cpp

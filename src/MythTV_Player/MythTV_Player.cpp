@@ -1236,9 +1236,9 @@ void MythTV_Player::CMD_Simulate_Keypress(string sPK_Button,string sName,string 
 	/** @brief COMMAND: #29 - Simulate Mouse Click */
 	/** Simlate a mouse click at a certain position on the screen */
 		/** @param #11 Position X */
-			/**  */
+			/** position X */
 		/** @param #12 Position Y */
-			/**  */
+			/** position Y */
 
 void MythTV_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
@@ -1319,7 +1319,7 @@ void MythTV_Player::CMD_Guide(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-b->
 
 	/** @brief COMMAND: #367 - Text */
-	/**  */
+	/** Text */
 
 void MythTV_Player::CMD_Text(string &sCMD_Result,Message *pMessage)
 //<-dceag-c367-e->
@@ -1436,7 +1436,7 @@ void MythTV_Player::ReleaseOrbiterPointer()
 	/** @brief COMMAND: #91 - Input Select */
 	/** toggle inputs */
 		/** @param #71 PK_Command_Input */
-			/** The Input to select */
+			/** The Input to select, or 0=toggle */
 
 void MythTV_Player::CMD_Input_Select(int iPK_Command_Input,string &sCMD_Result,Message *pMessage)
 //<-dceag-c91-e->

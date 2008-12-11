@@ -6,9 +6,9 @@ SNR_CPPFLAGS ?= <-mkr_t_compile_defines->
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql $(SNR_CPPFLAGS)
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE $(SNR_CPPFLAGS)
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread
 
 MYNAME = Text_To_Speech
 VERSION = 2.0.0
@@ -19,9 +19,9 @@ sources = Main.cpp Text_To_Speech.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
+CPPFLAGS += -I/usr/include/mysql
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lmysqlclient_r
 
 Gen_Dev_Files +=
 sources +=

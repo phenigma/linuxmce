@@ -96,7 +96,7 @@ extern "C" {
 		LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
 
 		CM11A *pCM11A = new CM11A(PK_Device, "localhost",true,false,pRouter);
-		if( pCM11A->m_bQuit_get() || !pCM11A->GetConfig() )
+		if( pCM11A->m_bQuit_get()|| !pCM11A->GetConfig() )
 		{
 			delete pCM11A;
 			return NULL;
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 	bool bAppError = false;
-	bool bReload=false;
+	bool bReload = false;
 	try
 	{
 		CM11A *pCM11A = new CM11A(PK_Device, sRouter_IP,true,bLocalMode);
@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
     WSACleanup();
 #endif
 
-	if(bAppError)
+	if( bAppError )
 		return 1;
 
 	if( bReload )

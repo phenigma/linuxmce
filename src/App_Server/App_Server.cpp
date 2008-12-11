@@ -558,6 +558,24 @@ void App_Server::CMD_Vol_Down(int iRepeat_Command,string &sCMD_Result,Message *p
 	sCMD_Result = "OK";
 }
 
+//<-dceag-c97-b->
+
+	/** @brief COMMAND: #97 - Mute */
+	/** Toggle mute/unmute */
+
+void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
+//<-dceag-c97-e->
+{
+	bool bLastMute = m_bLastMute;
+	m_bLastMute=!m_bLastMute;
+#ifndef WIN32
+	m_MasterMix.SetOn(bLastMute ? 1 : 0); // toggle mute
+#endif
+
+	// TODO: check that the mixer actually worked
+	sCMD_Result = "OK";
+}
+
 //<-dceag-c313-b->
 
 	/** @brief COMMAND: #313 - Set Volume */
@@ -594,23 +612,6 @@ void App_Server::CMD_Set_Volume(string sLevel,string &sCMD_Result,Message *pMess
 	sCMD_Result = "OK";
 }
 
-//<-dceag-c97-b->
-
-	/** @brief COMMAND: #97 - Mute */
-	/** Toggle mute/unmute */
-
-void App_Server::CMD_Mute(string &sCMD_Result,Message *pMessage)
-//<-dceag-c97-e->
-{
-	bool bLastMute = m_bLastMute;
-	m_bLastMute=!m_bLastMute;
-#ifndef WIN32
-	m_MasterMix.SetOn(bLastMute ? 1 : 0); // toggle mute
-#endif
-
-	// TODO: check that the mixer actually worked
-	sCMD_Result = "OK";
-}
 //<-dceag-c696-b->
 
 	/** @brief COMMAND: #696 - Application is Running */
