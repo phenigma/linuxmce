@@ -152,7 +152,7 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 		{
 			pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Manage Drives",ICON_Start_Disc_CONST,0,0,NULL,16);
 			if( pCommandGroup )
-				pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_Drive_Overview_CONST).c_str());
+				pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,1,COMMANDPARAMETER_PK_Screen_CONST,StringUtils::itos(SCREEN_Manage_Drives_CONST).c_str());
 		}
 	}
 

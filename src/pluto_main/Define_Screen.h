@@ -242,7 +242,6 @@
 #define SCREEN_Legacy_AV_Speed_Control_CONST 256
 #define SCREEN_Thumbnail_CONST 257
 #define SCREEN_Scanning_Progress_CONST 258
-#define SCREEN_Drive_Overview_CONST 259 //temporary 
 #define SCREEN_Manage_Drives_CONST 259
 #define SCREEN_Jukebox_Manager_CONST 260
 #define SCREEN_NAS_Manager_CONST 261

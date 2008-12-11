@@ -2870,9 +2870,9 @@ bool ScreenHandler::Thumbnail_DatagridSelected(CallBackData *pData)
 	return true; // We did a goto screen
 }
 
-void ScreenHandler::SCREEN_Drive_Overview(long PK_Screen)
+void ScreenHandler::SCREEN_Manage_Drives(long PK_Screen)
 {
-	ScreenHandlerBase::SCREEN_Drive_Overview(PK_Screen);
+	ScreenHandlerBase::SCREEN_Manage_Drives(PK_Screen);
 	RegisterCallBack(cbObjectSelected, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_ObjectSelected,	new ObjectInfoBackData());
 	RegisterCallBack(cbDataGridRendering, (ScreenHandlerCallBack) &ScreenHandler::DriveOverview_GridRendering,	new DatagridAcquiredBackData());
 }
