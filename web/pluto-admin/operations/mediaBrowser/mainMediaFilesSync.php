@@ -24,6 +24,9 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$_SESSION['show_attributes']=isset($_SESSION['show_attributes'])?$_SESSION['show_attributes']:0;
  	$_SESSION['show_attributes']=isset($_REQUEST['show_attributes'])?$_REQUEST['show_attributes']:$_SESSION['show_attributes'];
  	
+	$_SESSION['show_wocoverart']=isset($_SESSION['show_wocoverart'])?$_SESSION['show_wocoverart']:0;
+	$_SESSION['show_wocoverart']=isset($_REQUEST['show_wocoverart'])?$_REQUEST['show_wocoverart']:$_SESSION['show_wocoverart'];
+ 
 	//EDIT BY PAUL MUMBY:
 	//Added doRecursive function to js below
 	if($action=='form'){
@@ -96,6 +99,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
  			<table>
  				<tr>
  					<input type="checkbox" name="show_attributes" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_attributes='.((@$_SESSION['show_attributes']==1)?0:1).'\'" '.(($_SESSION['show_attributes']==1)?'checked':'').'> '.$TEXT_SHOW_ATTRIBUTES_CONST.'
+					<input type="checkbox" name="show_wocoverart" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_wocoverart='.((@$_SESSION['show_wocoverart']==1)?0:1).'\'" '.(($_SESSION['show_wocoverart']==1)?'checked':'').'> '.$TEXT_SHOW_ONLY_WO_COVERART.'
  				</tr>
  			</table>
 			
@@ -341,30 +345,35 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 			}
 		}
 		$coverArtIcon=(@$dbPicsNoFiles[$key]!=0)?'&nbsp;<img src="include/images/coverart.gif" border="0" style="vertical-align:middle;">':'';
-		$out.='	
-			<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
-				<td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
-			</tr>';
-		if(@$inDB==1){
- 			if($_SESSION['show_attributes']==1) {
- 				$queryAttributes='
- 					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
- 					FROM File_Attribute
- 					INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
- 					INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
- 					WHERE FK_File=? ORDER BY AttributeType.Description ASC
- 					';
- 				$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
- 				$attributes='';
- 				while($rowAttributes=$resAttributes->FetchRow()){
- 					$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
- 				}
- 				$out.='
- 					<tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
- 						<td colspan="2">'.@$attributes.'</td>
- 					</tr>';			
- 			}
+		/* only display item if show_wocoverart is not set or the file does not have coverart attached */
+		if($_SESSION['show_wocoverart'] == 0 
+			|| ($_SESSION['show_wocoverart'] == 1 
+				&&  $coverArtIcon == '')) {
+    		    $out.='	
+			    <tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+				    <td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
+			    </tr>';
+		    if(@$inDB==1){
+ 			    if($_SESSION['show_attributes']==1) {
+ 				    $queryAttributes='
+ 					    SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name
+ 					    FROM File_Attribute
+ 					    INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
+ 					    INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
+ 					    WHERE FK_File=? ORDER BY AttributeType.Description ASC
+ 					    ';
+ 			    	    $resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
+ 				    $attributes='';
+ 				    while($rowAttributes=$resAttributes->FetchRow()){
+ 					    $attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).'</a> ';
+ 				    }
+ 				    $out.='
+ 					    <tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+ 						    <td colspan="2">'.@$attributes.'</td>
+ 					    </tr>';			
+ 			    }
 
+		    }
 		}
 	}
 	$out.='

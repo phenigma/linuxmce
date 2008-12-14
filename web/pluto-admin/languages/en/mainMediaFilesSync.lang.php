@@ -28,6 +28,7 @@ $TEXT_SYNCHRONIZE_COMMAND_SENT_CONST='The command to resynchronize directory was
 $TEXT_FILE_ADDED_TO_DATABASE_CONST='File added to database.';
 $TEXT_MEDIA_FILES_SYNC_CONST='Media Files Sync';
 $TEXT_SHOW_ATTRIBUTES_CONST='Show Attributes'; 
+$TEXT_SHOW_ONLY_WO_COVERART='Show only items without cover art';
 //ADDED BY PAUL MUMBY:
 $TEXT_RECURSIVE='Apply These Tags Recursively';
 ?>
