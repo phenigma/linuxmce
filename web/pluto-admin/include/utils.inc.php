@@ -6099,6 +6099,7 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 
 	
 	$allAttributes=getAssocArray('Attribute','Attribute.Name','PK_Attribute',$mediadbADO);
+	$allAttributeTypes=getAssocArray('Attribute','PK_Attribute','FK_AttributeType',$mediadbADO);
 	$amazonAttributes=getAssocArray('CoverArtScanEntry','PK_CoverArtScanEntry','Attributes',$mediadbADO,'WHERE PK_CoverArtScanEntry='.$id);
 	if(count($amazonAttributes)==0){
 		return '';		
@@ -6118,8 +6119,8 @@ function syncAttributes($table,$itemValue,$id,$mediadbADO){
 				$mediadbADO->Execute('INSERT INTO LongAttribute (FK_'.$table.',FK_AttributeType,Text)  VALUES (?,?,?)',array($itemValue,37,$aname));
 			}else{
 				if(isset($attributeTypes[$atype])){
-					// if the attribute doesn't exist at all, add it
-					if(!isset($allAttributes[$aname])){
+					// if the combination of attribute/attribute type doesn't exist, add it
+					if(!(isset($allAttributes[$aname]) && ($allAttributeTypes[$allAttributes[$aname]] == $attributeTypes[$atype]))){
 						$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($attributeTypes[$atype],$aname));
 						$aid=$mediadbADO->Insert_Id();
 					}else{
