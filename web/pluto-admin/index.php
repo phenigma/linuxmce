@@ -1492,7 +1492,7 @@ switch ($section) {
 		$output->setTemplateFileType('large');
 	    include_once('operations/mediaBrowser/checkAmazon.php');
 	    checkAmazon($output,$mediadbADO,$dbADO);	    
-	break;	
+	break;
 	case 'searchAmazon':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');
@@ -1505,6 +1505,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/grabAmazonAttributes.php');
 	    grabAmazonAttributes($output,$mediadbADO,$dbADO);	    
 	break;	
+	case 'checkIMDB':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/checkIMDB.php');
+	    checkIMDB($output,$mediadbADO,$dbADO);	
+	break;
 	case 'backup':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

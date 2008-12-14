@@ -24,6 +24,7 @@ $TEXT_JPG_ONLY_CONST='JPG only';
 $TEXT_DATE_ADDED_CONST='Date added';
 $TEXT_CONFIRM_DELETE_PICTURE_CONST='Are you sure you want to delete this picture?';
 $TEXT_GET_INFO_ON_AMAZON_CONST='Get Amazon attributes';
+$TEXT_GET_INFO_ON_IMDB_CONST='Get IMDB attributes';
 $TEXT_SEARCH_PHRASE_CONST='Search phrase';
 $TEXT_SEARCH_OPTIONS_CONST='Search options';
 $TEXT_SEARCH_AMAZON_CONST='Search AMAZON';
