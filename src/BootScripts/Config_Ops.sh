@@ -66,12 +66,18 @@ ConfEval()
 	#               "while ...; do ...; done <file" works the way we need
 	while read line; do
 		line="${line// }"
-		if [[ "$line" == "#"* || "$line" == "//"* ]]; then
+		if [[ "$line" == "#"* || "$line" == "//"* || "$line" == ";*" ]]; then
 			continue # comment line; skip
 		fi
 		eval "export $line" &>/dev/null
 	done </etc/pluto.conf
 	Unlock "pluto.conf" "Config_Ops-ConfEval" nolog
+
+	# if there was no MySqlDBName in pluto.conf, set it to pluto_main
+	if [ -z "$MySqlDBName" ]
+	then
+		ConfSet MySqlDBName pluto_main
+	fi
 
 	# if there was no Display in pluto.conf, set it to 0
 	# rationale: Installing 2.0.0.44 by using a 2.0.0.43 CD needs this, otherwise X won't start
@@ -182,6 +188,21 @@ InstalledPackages()
 }
 
 ConfEval
+
+PLUTO_DB_CRED=""
+if [ "$MySqlHost" ] ; then PLUTO_DB_CRED="$PLUTO_DB_CRED -h $MySqlHost"; fi
+if [ "$MySqlPort" ] ; then PLUTO_DB_CRED="$PLUTO_DB_CRED -P $MySqlPort"; fi
+if [ "$MySqlUser" ] ; then PLUTO_DB_CRED="$PLUTO_DB_CRED -u $MySqlUser"; fi
+if [ "$MySqlPassword" ] ; then PLUTO_DB_CRED="$PLUTO_DB_CRED -p $MySqlPassword"; fi
+export PLUTO_DB_CRED
+
+MYSQL_DB_CRED=""
+if [ "$MySqlHost" ] ; then MYSQL_DB_CRED="$MYSQL_DB_CRED -h$MySqlHost"; fi
+if [ "$MySqlPort" ] ; then MYSQL_DB_CRED="$MYSQL_DB_CRED -P$MySqlPort"; fi
+if [ "$MySqlUser" ] ; then MYSQL_DB_CRED="$MYSQL_DB_CRED -u$MySqlUser"; fi
+if [ "$MySqlPassword" ] ; then MYSQL_DB_CRED="$MYSQL_DB_CRED -p$MySqlPassword"; fi
+export MYSQL_DB_CRED
+
 
 VGcmd=""
 if [[ -n "$Valgrind" ]]; then
