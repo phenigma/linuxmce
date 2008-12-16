@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Utils.sh
+. /usr/pluto/bin/Config_Ops.sh || :
 
 /usr/pluto/bin/Debug_LogKernelModules.sh "$0" || :
 
@@ -17,7 +18,9 @@ if ! BlacklistConfFiles "$MyCnf" ;then
 	grep -q '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
 	grep -q '^skip-name-resolve' "$MyCnf" || sed -i 's/^\[mysqld\].*$/[mysqld]\nskip-name-resolve/g' "$MyCnf"
 
-	echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
-	echo "FLUSH PRIVILEGES;" | mysql
+	Q="GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';"
+	mysql $MYSQL_DB_CRED -e "$Q"
+	Q="FLUSH PRIVILEGES;"
+	mysql $MYSQL_DB_CRED -e "$Q"
 	invoke-rc.d mysql restart
 fi
