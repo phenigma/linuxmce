@@ -160,9 +160,11 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	if( pCommandGroup )
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_pluto_Pictures_CONST).c_str());
 
-	pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Docs",ICON_Document_CONST,0,MEDIATYPE_misc_DocViewer_CONST,NULL,14);
-	if( pCommandGroup )
-		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
+	// Temporarily removed useless Docs media type, for now. It will be back -tschak
+
+	// pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Docs",ICON_Document_CONST,0,MEDIATYPE_misc_DocViewer_CONST,NULL,14);
+	// if( pCommandGroup )
+	//	pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_DocViewer_CONST).c_str());
 
 	{
 		// Find all non-pluto media
