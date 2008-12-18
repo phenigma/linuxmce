@@ -10,7 +10,7 @@ function editDirectoryAttributes($output,$mediadbADO,$dbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$fileID=$_REQUEST['fileID'];
 	$dirData=getRows('File','File.*',$mediadbADO,'WHERE PK_File=\''.$fileID.'\'');
-	$filesArray=getAssocArray('File','PK_File','Filename',$mediadbADO,'WHERE Path LIKE \''.@$dirData[0]['Path'].'/'.@$dirData[0]['Filename'].'\' AND Missing=0 AND PK_File!=\''.$fileID.'\' AND IsDirectory=0 ORDER BY Filename ASC');
+	$filesArray=getAssocArray('File','PK_File','Filename',$mediadbADO,'WHERE Path LIKE '.escape(@$dirData[0]['Path'].'/'.@$dirData[0]['Filename']).' AND Missing=0 AND PK_File!=\''.$fileID.'\' AND IsDirectory=0 ORDER BY Filename ASC');
 	
 	if($action=='form'){
 	$attributeTypes=getAssocArray('AttributeType','PK_AttributeType','Description',$mediadbADO,'','ORDER BY Description ASC');

@@ -6851,4 +6851,57 @@ function delete_media_pic($picID,$mediaADO){
 		@unlink($GLOBALS['mediaPicsPath'].$picID.'_tn.jpg');
 	}
 }
+
+/**
+ * Correctly quotes a string so that all strings are escaped. We prefix and append
+ * to the string single-quotes.
+ * An example is  escape ( "Don't bother",magic_quotes_runtime () );
+ *
+ * @param str			the string to quote
+ * @param [magic_quotes]	if $s is GET/POST var, set to get_magic_quotes_gpc().
+ *
+ * @return  quoted string to be sent back to database
+ *
+ * @author http://www.roscripts.com/snippets/show/157
+*/
+function escape ( $str, $magic_quotes = false )
+{
+		switch ( gettype ( $str ) )
+		{
+			case 'string'	:
+				$replaceQuote = "\\'"; 	/// string to use to replace quotes
+				if ( ! $magic_quotes ) {
+
+					if ( $replaceQuote [ 0 ] == '\\' ){
+						// only since php 4.0.5
+						$str = str_replace ( array ( '\\', "\0" ), array ( '\\\\', "\\\0" ), $str );
+						//$s = str_replace("\0","\\\0", str_replace('\\','\\\\',$s));
+					}
+					return  "'" . str_replace ( "'", $replaceQuote, $str ) . "'";
+				}
+
+				// undo magic quotes for "
+				$str = str_replace ( '\\"','"', $str );
+
+				if ( $replaceQuote == "\\'" ) {// ' already quoted, no need to change anything
+					return "'$str'";
+				}
+				else {// change \' to '' for sybase/mssql
+					$str = str_replace ( '\\\\','\\', $str );
+					return "'" . str_replace ( "\\'", $treplaceQuote, $str ) . "'";
+				}
+			break;
+			case 'boolean'	:	$str = ($str === FALSE) ? 0 : 1;
+						return $str;
+				break;
+			case 'integer'	:	$str = ($str === NULL) ? 'NULL' : $str;
+						return $str;
+				break;
+			default		:	$str = ($str === NULL) ? 'NULL' : $str;
+						return $str;
+				break;
+		}
+}
+
 ?>
+
