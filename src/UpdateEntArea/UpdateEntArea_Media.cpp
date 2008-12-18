@@ -141,6 +141,23 @@ void UpdateEntArea::AddDefaultMediaScenarios(Row_EntertainArea *pRow_EntertainAr
 	if( pCommandGroup )
 		pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_misc_Playlist_CONST).c_str());
 
+        {
+		// Add a Games button if a Game Player exists.
+		// TODO: Make this a category when the next emulator is supported.
+		string sSQL = "SELECT PK_Device FROM Device_EntertainArea "
+			"JOIN Device ON FK_Device=PK_Device "
+			"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate "
+			"WHERE FK_DeviceTemplate = " + StringUtils::itos(DEVICETEMPLATE_Game_Player_CONST) + " AND FK_EntertainArea=" +
+			StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get());
+		PlutoSqlResult result_set;
+		if ( (result_set.r=m_pDatabase_pluto_main->db_wrapper_query_result(sSQL)) && result_set.r->row_count>0 )
+		{
+		      pCommandGroup = commandGroupArray.FindCommandGroupByTemplate(TEMPLATE_Media_Wiz_FileDisc_CONST,"Games",ICON_Playlist_CONST,NULL,12);
+		      if (pCommandGroup)
+			  pCommandGroup->AddCommand(DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Show_File_List_CONST,1,1,COMMANDPARAMETER_PK_MediaType_CONST,StringUtils::itos(MEDIATYPE_lmce_Game_CONST).c_str());
+		}
+	}
+
 	{
 		// Only add this button if there's a disk drive
 		string sSQL = "SELECT PK_Device FROM Device_EntertainArea "
