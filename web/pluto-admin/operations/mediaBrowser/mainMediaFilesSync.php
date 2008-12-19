@@ -149,6 +149,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 					'.(($_SESSION['missing']==1)?'<img src=include/images/db.gif align=middle border=0> '.$TEXT_EXIST_ONLY_IN_DATABASE_CONST.'<br>':'').'
 					<img src=include/images/sync.gif align=middle border=0>	'.$TEXT_EXIST_BOTH_ON_DISK_AND_IN_DATABASE_CONST.'<br>
 					<input type="checkbox" name="show_missing" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&missing='.((@$_SESSION['missing']==1)?0:1).'\'" '.(($_SESSION['missing']==1)?'checked':'').'> '.$TEXT_SHOW_FILES_WHO_ARE_MISSING_FROM_DISK_CONST.'
+					<td align="right"><input type="button" class="button" name="del" value="'.$TEXT_DELETE_ALL_FILES_FROM_DATABASE_CONST.'" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_ALL_FILES_FROM_DATABASE_CONST.'\'))self.location=\'index.php?section=mainMediaFilesSync&action=delallmissingfiles&dfile='.@$dbPKFiles[$dbkey].'&path='.urlencode($path).'\';"></td>
 				</tr>
 			</table>';
 		}
@@ -184,7 +185,7 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 				// is file, delete all references
 				delete_file_from_db($dfile,$mediadbADO);
 			}else{
-				// is directory, get all subdirectories and delete them recoursively
+				// is directory, get all subdirectories and delete them recursively
 				delete_directory_from_db($fileInfo['Path'][0],$mediadbADO);
 			}
 
@@ -192,6 +193,31 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			exit();
 		}
 		
+		// delete from database all files missing from the filesystem
+		if($action=='delallmissingfiles'){
+			$dfile=(int)@$_REQUEST['dfile'];
+			$fileInfo=getFieldsAsArray('File','Path,Filename,IsDirectory',$mediadbADO,'WHERE PK_File='.$dfile);
+			
+			$newline = "<br />";
+
+			echo "Here",$newline;
+			echo $Path,  $newline;
+			echo $path,  $newline;
+			echo $dfile,  $newline;
+			
+			delete_missingfiles_from_db($path, $mediadbADO);
+			exit();
+			if($fileInfo['IsDirectory'][0]==0){
+				// is file, delete all references
+				delete_file_from_db($dfile,$mediadbADO);
+			}else{
+				// is directory, get all subdirectories and delete them recursively
+				delete_directory_from_db($fileInfo['Path'][0],$mediadbADO);
+			}
+
+			exit();
+		}
+
 		if($action=='delDir'){
 			$newPath=getUpperLevel($path);
 			exec('sudo -u root rm -rf "'.$path.'"');
@@ -274,6 +300,20 @@ function delete_directory_from_db($directoryPath,$mediadbADO){
 		if($row['IsDirectory']==1 && $directoryPath!=$row['Path']){
 			delete_directory_from_db($row['Path'],$mediadbADO);
 		}
+		delete_file_from_db($row['PK_File'],$mediadbADO);
+	}
+}
+
+function delete_missingfiles_from_db($directoryPath,$mediadbADO){
+	$res=$mediadbADO->_Execute("SELECT * FROM File WHERE Path LIKE '".addslashes($directoryPath)."/%' OR Path='".addslashes($directoryPath)."' AND Missing=1");
+	$newline = "<br />";
+	
+	while($row=$res->FetchRow()){
+		if($row['IsDirectory']==1 && $directoryPath!=$row['Path']){
+			//delete_directory_from_db($row['Path'],$mediadbADO);
+			echo "DeleteDir: ", $row['Path'], $newline;
+		}
+		echo "RemoveFile: ", $row['PK_File'], ": ", $row['Path'], "/", $row['Filename'], $newline;
 		delete_file_from_db($row['PK_File'],$mediadbADO);
 	}
 }
@@ -382,7 +422,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 			<td align="right">'.$navBar.'</td>
 		</tr>
 		<tr>
-			<td colspan="2"><em>WARNING: the page will load slow for a very large number of files and it may stop working at all</em></td>
+			<td colspan="2"><em>WARNING: the page will load very slowly for large numbers of files and may even stop working completely</em></td>
 		</tr>		
 	</table>
 	<input type="hidden" name="notInDBArray" value="'.@join(',',@$notInDBArray).'">
@@ -391,7 +431,8 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	return $out;
 }
 
-function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
+function dbonlyFilesList($path,$physicalFiles,$mediadbADO)
+{
 	// include language files
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/common.lang.php');	
 	include(APPROOT.'/languages/'.$GLOBALS['lang'].'/mainMediaFilesSync.lang.php');
@@ -413,13 +454,15 @@ function dbonlyFilesList($path,$physicalFiles,$mediadbADO){
 	}	
 	$noPages=ceil(count($dbFiles)/$_SESSION['media_files_per_page']);
 
-	if(count($dbFiles)==0){
+	if(count($dbFiles)==0)
+	{
 		return $TEXT_NO_OTHER_FILES_IN_DATABASE_CONST;
 	}
 	
 	$dbFiles=array_slice($dbFiles,$_SESSION['media_files_per_page']*($dpage-1),$_SESSION['media_files_per_page']);
 	$navBarArray=array();
-	for($i=1;$i<$noPages+1;$i++){
+	for($i=1;$i<$noPages+1;$i++)
+	{
 		$navBarArray[]=($i==$dpage)?$i:'<a href="index.php?'.str_replace('dpage='.$dpage,'',$_SERVER['QUERY_STRING']).'&dpage='.$i.'">'.$i.'</a>';
 	}
 	$navBar=join(' | ',$navBarArray);	

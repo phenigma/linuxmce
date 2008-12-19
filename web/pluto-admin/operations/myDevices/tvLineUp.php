@@ -26,7 +26,7 @@ function tvLineUp($output,$dbADO,$mediaADO) {
 		$InstallationZipCode=$data[0];
 		$provider=$data[1];
 		$checkedChannels=$mediaProviderDD;
-		// remove first 2 records who are zip code and provider id
+		// remove first 2 records: zip code and provider id
 		unset($checkedChannels[0]);
 	}	
 	

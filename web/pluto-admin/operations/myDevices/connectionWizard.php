@@ -297,7 +297,7 @@ if ($action == 'form') {
 ';
 		}
 
-		// if they are pipes who are not displayed, call for javascript function who will serch for coordinates and display them
+		// if they are pipes that are not displayed, call for javascript function who will serch for coordinates and display them
 		$jsMissingPipes='';
 		if(count($existingPipes)!=0){
 			foreach ($existingPipes as $devicePipe){

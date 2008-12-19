@@ -70,7 +70,7 @@ function resyncCodes($output,$dbADO) {
 			$override=(int)@$_POST['override'];
 			
 			if($override==1){
-				// if override checkbox is checked, reset psc_mod for all codes who are in his InfraredGroup and had psc_batch positive
+				// if override checkbox is checked, reset psc_mod for all codes that are in his InfraredGroup and had psc_batch positive
 				$codesToReset=getAssocArray('InfraredGroup_Command','PK_InfraredGroup_Command','PK_InfraredGroup_Command',$dbADO,'INNER JOIN DeviceTemplate on DeviceTemplate.FK_InfraredGroup=InfraredGroup_Command.FK_InfraredGroup WHERE PK_DeviceTemplate='.$dtID.' AND InfraredGroup_Command.psc_batch>0 AND InfraredGroup_Command.psc_mod!=0');
 
 				if(count($codesToReset)>0){

@@ -14,7 +14,7 @@ function editCommand($output,$dbADO) {
 	if ($action=='form') {		
 		$commandID = (int)@$_REQUEST['commandID'];
 
-		// get device templates who are using this command
+		// get device templates that are using this command
 		$res=$dbADO->Execute('
 			SELECT DISTINCT FK_DeviceTemplate, DeviceTemplate.Description
 			FROM DeviceCommandGroup_Command 
