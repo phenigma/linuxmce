@@ -1,8 +1,9 @@
 #!/usr/sbin/perl
 
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
-$db = DBI->connect("dbi:mysql:database=pluto_main;host=localhost;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
+$db = DBI->connect(&read_pluto_cred()) or die "Couldn't connect to database: $DBI::errstr\n";
 
 $devices = "";
 $datas = "";

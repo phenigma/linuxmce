@@ -3,9 +3,10 @@
 use strict;
 use diagnostics;
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
 sub getIP {
-        my $dbh = DBI->connect('dbi:mysql:pluto_main');
+        my $dbh = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
         my $sth = $dbh->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
         $sth->execute || die "Sql Error";
         my $row = $sth->fetchrow_hashref;
@@ -198,7 +199,7 @@ close(FILE);
 my $ORB_ID;
 my $ORB_CNT;
 my $DB_ROW;
-my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=$IntIP;user=root;password=;") or die "Could not connect to MySQL";
+my $DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
 my $DB_SQL = "select count(PK_Device) from Device where FK_DeviceTemplate=1727";
 my $DB_STATEMENT = $DB_PL_HANDLE->prepare($DB_SQL) or die "Couldn't prepare query '$DB_SQL': $DBI::errstr\n";
 $DB_STATEMENT->execute() or die "Couldn't execute query '$DB_SQL': $DBI::errstr\n";

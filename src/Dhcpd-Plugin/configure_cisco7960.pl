@@ -3,9 +3,10 @@
 use strict;
 use diagnostics;
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
 sub getIP {
-        my $dbh = DBI->connect('dbi:mysql:pluto_main');
+        my $dbh = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
         my $sth = $dbh->prepare("SELECT IPaddress FROM Device WHERE FK_DeviceTemplate = 7");
         $sth->execute || die "Sql Error";
         my $row = $sth->fetchrow_hashref;

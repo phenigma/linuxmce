@@ -38,7 +38,7 @@ GhostHuntQ="SELECT *
 
 {
 	date -R
-	echo "$GhostHuntQ" | mysql pluto_main
+	RunSQL "$GhostHuntQ"
 } >>/var/log/pluto/start_devices.log
 
 Q="SELECT Device.PK_Device, DeviceTemplate.Description, DeviceTemplate.CommandLine, Device.Disabled

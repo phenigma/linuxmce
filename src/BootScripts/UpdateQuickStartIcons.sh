@@ -6,8 +6,8 @@ if [[ ! -d $PIXDIR ]]; then
         mkdir -p $PIXDIR
 fi
 
-icon=$(mysql -u root -D pluto_main -N -e "SELECT Icon FROM QuickStartTemplate")
-template=$(mysql -u root -D pluto_main -N -e "SELECT PK_QuickStartTemplate FROM QuickStartTemplate")
+icon=$(RunSQL "SELECT Icon FROM QuickStartTemplate")
+template=$(RunSQL "SELECT PK_QuickStartTemplate FROM QuickStartTemplate")
 
 ICON=( $icon )
 TEMPLATE=( $template )

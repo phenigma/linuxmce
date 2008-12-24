@@ -15,6 +15,8 @@ DEVICEDATA_DisklessBoot=9
 DEVICEDATA_DisklessImages=258
 DEVICEDATA_Model=233
 
+DEVICEDATA_PK_Distro=7
+
 function setup_tftp_boot 
 {
 	echo "* Configuring TFTP Boot for MD #${Moon_DeviceID}"
@@ -79,7 +81,7 @@ function setup_tftp_boot
 function setup_mysql_access 
 {
 	echo "* Setting up MySQL access for MD #${Moon_DeviceID}"
-	RunSQL "GRANT ALL PRIVILEGES ON *.* TO 'root'@$Moon_IP; GRANT ALL PRIVILEGES ON *.* TO 'eib'@$Moon_IP"
+	RunSQL "GRANT ALL PRIVILEGES ON *.* TO '$MySqlUser'@$Moon_IP; GRANT ALL PRIVILEGES ON *.* TO 'eib'@$Moon_IP"
 	RunSQL "FLUSH PRIVILEGES"
 }
 
@@ -96,9 +98,11 @@ function generate_diskless_installer
 		cp /usr/pluto/install/$Stuff $Moon_RootLocation/usr/pluto/install
 	done
 
+	Moon_DistroID=$(RunSQL "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$Moon_DeviceID' AND FK_DeviceData='$DEVICEDATA_PK_Distro'")
+
 	## Generate another installer script
 	if [[ ! -f $Moon_RootLocation/usr/pluto/install/activation.sh ]]; then
-		/usr/pluto/bin/ConfirmDependencies -o 14 -r -D pluto_main -h dcerouter -u root -p '' -d $Moon_DeviceID install > $Moon_RootLocation/usr/pluto/install/activation.sh
+		/usr/pluto/bin/ConfirmDependencies -o "$Moon_DistroID" -r -D "$MySqlDBName" $PLUTO_DB_CRED -d "$Moon_DeviceID" install > $Moon_RootLocation/usr/pluto/install/activation.sh
 	fi
 	
 	## Modify a install script to run as for diskless

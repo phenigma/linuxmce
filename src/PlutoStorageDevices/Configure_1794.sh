@@ -9,6 +9,7 @@
 
 . /usr/pluto/bin/TeeMyOutput.sh --outfile /var/log/pluto/Configure_1794.log --infile /dev/null --stdboth -- "$@"
 
+. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
 DD_USERNAME=127
@@ -91,7 +92,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 		
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share" 54 "$pnpUID"
+			/usr/pluto/bin/MessageSend "$DCERouter" $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share" 54 "$pnpUID"
 			mountedOK="true"
 		fi
 	fi
@@ -105,7 +106,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 		
 		if [[ "$success" == "0" ]] ;then
 			umount -f -l $tempMntDir &>/dev/null
-			/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
+			/usr/pluto/bin/MessageSend "$DCERouter" $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Device_Username|$DD_PASSWORD|$Device_Password" 54 "$pnpUID"
 			mountedOK="true"
 		fi
 	fi
@@ -137,7 +138,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 
 			if [[ "$success" == "0" ]] ;then
 				umount -f -l $tempMntDir &>/dev/null
-				/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Brother_Username|$DD_PASSWORD|$Brother_Password" 54 "$pnpUID"
+				/usr/pluto/bin/MessageSend "$DCERouter" $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|0|$DD_SHARE|$share|$DD_USERNAME|$Brother_Username|$DD_PASSWORD|$Brother_Password" 54 "$pnpUID"
 
 				siblingUserPassWorking="1"
 				mountedOK="true"
@@ -151,7 +152,7 @@ for share in $(smbclient $AuthPart --list=//$Device_IP  --grepable | grep "^Disk
 	## Notify the router that we didn't found any user/pass combination
 	if [[ "$mountedOK" == "false" ]] ;then
 		echo "$(date -R) Asking for password for '$share'"
-		/usr/pluto/bin/MessageSend dcerouter $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
+		/usr/pluto/bin/MessageSend "$DCERouter" $Device_ID -1001 2 65 56 "fileshare" 52 3 53 2 49 1768 55 "182|1|$DD_SHARE|$share" 54 "$pnpUID"
 	fi
 done
 

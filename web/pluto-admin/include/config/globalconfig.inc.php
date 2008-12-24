@@ -20,16 +20,16 @@
 	
 	// pluto media
 	$dbPlutoMediaType = "mysql";
-	$dbPlutoMediaUser = "root";
-	$dbPlutoMediaPass = "";
-	$dbPlutoMediaServer = "localhost";
+	$dbPlutoMediaUser = $DB_USER;
+	$dbPlutoMediaPass = $DB_PASS;
+	$dbPlutoMediaServer = $DB_HOST;
 	$dbPlutoMediaDatabase = "pluto_media";	
 	
 	// pluto security
 	$dbPlutoSecurityType = "mysql";
 	$dbPlutoSecurityUser = "plutosecurity";
 	$dbPlutoSecurityPass = "";
-	$dbPlutoSecurityServer = "localhost";
+	$dbPlutoSecurityServer = $DB_HOST;
 	$dbPlutoSecurityDatabase = "pluto_security";
 
 function LoadConfig($configFile,$configKey) {

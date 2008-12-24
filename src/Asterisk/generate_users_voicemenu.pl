@@ -3,10 +3,7 @@
 use strict;
 use diagnostics;
 use DBI;
-
-my $CONF_HOST="localhost";
-my $CONF_USER="root";
-my $CONF_PASSWD="";
+require "/usr/pluto/bin/config_ops.pl";
 
 my $DB_PL_HANDLE;
 my $DB_STATEMENT;
@@ -25,7 +22,7 @@ my $list = "";
 #$list .= "/tmp/pluto-default-voicemenu4.gsm ";
 #`/usr/bin/sox $list /tmp/pluto-default-voicemenu.gsm`;
 
-$DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
+$DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
 
 $list = "";
 $list .= "/var/lib/asterisk/sounds/pluto/pluto-default-voicemenu1.gsm ";

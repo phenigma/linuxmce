@@ -36,12 +36,12 @@ while [[ "$i" -le "$MAX_LOOP_COUNT" ]]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i" "$LogFile"
 	Log "$LogFile" "$(date) Starting"
 
-	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.log)
-	mysqldump pluto_main Device > /var/log/pluto/device.$(date +%F-%T)
+	/usr/pluto/bin/UpdateEntArea $PLUTO_DB_CRED -D "$MySqlDBName" > >(tee -a /var/log/pluto/updateea.log)
+	mysqldump $MYSQL_DB_CRED "$MySqlDBName" Device > /var/log/pluto/device.$(date +%F-%T)
 	if [[ "${Valgrind/DCERouter}" != "$Valgrind" ]]; then
-		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
+		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter $PLUTO_DB_CRED -D "$MySqlDBName" -l "$LogFile"
 	else
-		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter -h localhost -l "$LogFile"
+		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter $PLUTO_DB_CRED -D "$MySqlDBName" -l "$LogFile"
 	fi
 
 	Ret="$?"
@@ -67,3 +67,4 @@ while [[ "$i" -le "$MAX_LOOP_COUNT" ]]; do
 	fi
 	echo out
 done
+

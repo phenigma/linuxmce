@@ -3,6 +3,7 @@
 use strict;
 #use diagnostics;
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
 #declare vars (it's safer this way)
 my $DEVICE_ID=0;
@@ -10,24 +11,17 @@ my $DEVICE_EXT = 0;
 my $DEVICE_TYPE = "";
 my $DEVICE_PORT = 0;
 
-my $CONF_HOST="localhost";
-my $CONF_USER="root";
-my $CONF_PASSWD="";
-
 my $DB_PL_HANDLE;
 my $DB_AS_HANDLE;
 
 my $STATUS = 0;
 
-#check params
-&read_pluto_config();
-
 #fix permissions on each run
 `chmod g+w /etc/asterisk/*`;
 
 #connect to databases
-$DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
-$DB_AS_HANDLE = DBI->connect("dbi:mysql:database=asterisk;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
+$DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Could not connect to MySQL";
+$DB_AS_HANDLE = DBI->connect((&read_pluto_cred('asterisk')) or die "Could not connect to MySQL";
 
 #replace with the ip address of the asterisk server
 my $serv_IP=getIP();
@@ -116,29 +110,6 @@ sub getIP {
         my $row = $sth->fetchrow_hashref;
         my $IP = $row->{IPaddress};
         return $IP;
-}
-
-sub read_pluto_config()
-{
-    open(CONF,"/etc/pluto.conf") or die "Could not open pluto config";
-    while(<CONF>)
-    {
-        chomp;
-        my ($option, $eq, $value) = split(/ /,$_);
-        if($option eq "MySqlHost")
-        {
-            $CONF_HOST=$value;
-        }
-        elsif ($option eq "MySqlUser")
-        {
-            $CONF_USER=$value;
-        }
-        elsif ($option eq "MySqlPassword")
-        {
-            $CONF_PASSWD=$value;
-        }
-    }
-    close(CONF);
 }
 
 sub read_pluto_device_data()

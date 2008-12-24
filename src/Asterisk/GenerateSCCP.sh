@@ -18,7 +18,7 @@ if [[ ! -f "$SCCPconfFile".template ]]; then
 	cp "$SCCPconfFile"{,.template}
 fi
 
-UseDB pluto_main
+UseDB $MySqlDBName
 
 DEVICEDATA_PhoneNumber=31
 DEVICETEMPLATE_Cisco_7970=1726

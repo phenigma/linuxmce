@@ -3,6 +3,7 @@
 use strict;
 use diagnostics;
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
@@ -53,13 +54,13 @@ $TRUNK_VARS{'dialrules'}=$LOCAL_PREFIX1;
 $TRUNK_VARS{'autopop'}="";
 $TRUNK_VARS{'dialoutprefix'}="";
 $TRUNK_VARS{'channelid'}="xs4all";
-$TRUNK_VARS{'peerdetails'} ="allow=alaw&ulaw&g729&gsm&slinear\n";
+$TRUNK_VARS{'peerdetails'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n";
 $TRUNK_VARS{'peerdetails'}.="auth=md5\n";
 $TRUNK_VARS{'peerdetails'}.="context=from-trunk\n";
-$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
+#$TRUNK_VARS{'peerdetails'}.="disallow=all\n";
 $TRUNK_VARS{'peerdetails'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'peerdetails'}.="username=$DECLARED_USERNAME\n";
-#$TRUNK_VARS{'peerdetails'}.="callerid=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'peerdetails'}.="callerid=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="user=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="fromuser=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'peerdetails'}.="authuser=$DECLARED_USERNAME\n";
@@ -74,13 +75,13 @@ $TRUNK_VARS{'peerdetails'}.="insecure=very\n";
 
 $TRUNK_VARS{'usercontext'}=$DECLARED_NUMBER;
 $TRUNK_VARS{'userconfig'}=
-$TRUNK_VARS{'userconfig'} ="allow=alaw&ulaw&g729&gsm&slinear\n";
+$TRUNK_VARS{'userconfig'} ="allow=alaw&alaw&ulaw&g729&gsm&slinear\n";
 $TRUNK_VARS{'userconfig'}.="auth=md5\n";
 $TRUNK_VARS{'userconfig'}.="context=from-trunk\n";
-$TRUNK_VARS{'userconfig'}.="disallow=all\n";
+#$TRUNK_VARS{'userconfig'}.="disallow=all\n";
 $TRUNK_VARS{'userconfig'}.="host=$DECLARED_HOST\n";
 $TRUNK_VARS{'userconfig'}.="username=$DECLARED_USERNAME\n";
-#$TRUNK_VARS{'userconfig'}.="callerid=$DECLARED_USERNAME\n";
+$TRUNK_VARS{'userconfig'}.="callerid=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'userconfig'}.="user=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'userconfig'}.="fromuser=$DECLARED_USERNAME\n";
 $TRUNK_VARS{'userconfig'}.="authuser=$DECLARED_USERNAME\n";
@@ -156,10 +157,7 @@ foreach my $var (keys %IN_VARS)
 
 sub get_local_prefixes()
 {
-    my $CONF_HOST="localhost";
-    my $CONF_USER="root";
-    my $CONF_PASSWD="";
-    my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
+    my $DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
     my $DB_STATEMENT;
     my $DB_SQL;
     my $DB_ROW;

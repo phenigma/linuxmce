@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ## TrigerCascade="true" result in script being run on the other computers too
+. /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/Section_Ops.sh
 . /usr/pluto/bin/Utils.sh
 AutoMaster_StorageDevices="/mnt/device /etc/auto.PlutoStorageDevices --timeout=30"
@@ -50,5 +51,6 @@ fi
 
 ## Call this script on the other machines too
 if [[ $TrigerCascade == "true" ]] ;then
-	/usr/pluto/bin/MessageSend dcerouter -targetType template 0 26 1 67 13 "/usr/pluto/bin/StorageDevices_Setup.sh" 51 "--nocascade"
+	/usr/pluto/bin/MessageSend "$DCERouter" -targetType template 0 26 1 67 13 "/usr/pluto/bin/StorageDevices_Setup.sh" 51 "--nocascade"
 fi
+

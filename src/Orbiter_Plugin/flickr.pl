@@ -14,6 +14,7 @@ use POSIX qw(ceil floor);
 use POSIX ":sys_wait_h";
 #use strict;
 use vars qw($dest $xs $r @buff $child_count $minW $minH @fileList @AoH);
+require "/usr/pluto/bin/config_ops.pl";
 
 if (-f '/etc/pluto/flickr-enabled')
 {
@@ -367,15 +368,15 @@ sub activate_image {
 	## Don't send the messages too fast
 	sleep 1;
 	print `date`;
-	print TEST "1. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
-	$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
+	print TEST "1. Sending /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 819 13 $symdest\n";
+	$fms = qx | /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 819 13 "$symdest" |; 
 				
 	## If the router is not available for the moment
 	while ( $fms =~ m/Cannot communicate with router/ ) {
 		printf "Waiting for router to come up";
 		sleep 10;
-		print TEST "2. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 \"$symdest\"\n";
-		$fms = qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
+		print TEST "2. Sending /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 819 13 \"$symdest\"\n";
+		$fms = qx | /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 819 13 "$symdest" |;
 	}
 				
 	`rm -f $finaldst.lock`;
@@ -387,8 +388,8 @@ sub activate_image {
 	# second message send
 	#	print "Fire-ing second messagesend event\n";
 	
-	print TEST "3. Sending /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 \"$ffield\" 122 30 5 \"*\"\n";
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
+	print TEST "3. Sending /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 391 145 \"$ffield\" 122 30 5 \"*\"\n";
+	qx | /usr/pluto/bin/MessageSend $DCERouter -targetType template -r -o 0 2 1 391 145 "$ffield" 122 30 5 "*" |;
 
 	
 	close(TEST);
@@ -412,7 +413,7 @@ sub delete_old {
 		$count = $dim - $max_number;
 	}	
 
-	my $dbh = DBI->connect('dbi:mysql:pluto_media');
+	my $dbh = DBI->connect( &read_pluto_cred('pluto_media')) or die "Can't connect to database: $DBI::errstr\n";
 
 	foreach ( @arrayOfFiles ) {
 		if (!isFileInList($_)){
@@ -435,7 +436,7 @@ sub delete_old {
 	}
 	#print TEST "\n\n-------------DELETING END---------------------\n\n";
 	close(TEST);
-	qx | /usr/pluto/bin/MessageSend dcerouter -targetType template 0 1825 1 606 |;
+	qx | /usr/pluto/bin/MessageSend $DCERouter -targetType template 0 1825 1 606 |;
 }
 
 sub isFileInList {
@@ -462,7 +463,7 @@ sub markFileAsDelete {
 }
 
 sub getMaxNrFiles {
-	my $dbh = DBI->connect('dbi:mysql:pluto_main');
+	my $dbh = DBI->connect( &read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
 	my $sth = $dbh->prepare("
 		SELECT 
 			IK_DeviceData 

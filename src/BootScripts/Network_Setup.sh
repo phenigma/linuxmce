@@ -57,7 +57,7 @@ if [[ "$NetIfConf" == 0 || "$NPflagReconfNetwork" == yes ]]; then
 	RunSQL "$Q"
 fi
 
-Q="GRANT ALL PRIVILEGES ON *.* TO 'root'@$IntIP"
+Q="GRANT ALL PRIVILEGES ON *.* TO '$MySqlUser'@$IntIP"
 RunSQL "$Q"
 echo "Writing network configuration with one in database"
 

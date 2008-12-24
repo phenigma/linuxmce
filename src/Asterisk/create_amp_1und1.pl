@@ -3,6 +3,7 @@
 use strict;
 use diagnostics;
 use DBI;
+require "/usr/pluto/bin/config_ops.pl";
 
 my $DECLARED_USERNAME;
 my $DECLARED_USERPASSWD;
@@ -155,10 +156,7 @@ foreach my $var (keys %IN_VARS)
 
 sub get_local_prefixes()
 {
-    my $CONF_HOST="localhost";
-    my $CONF_USER="root";
-    my $CONF_PASSWD="";
-    my $DB_PL_HANDLE = DBI->connect("dbi:mysql:database=pluto_main;host=".$CONF_HOST.";user=".$CONF_USER.";password=".$CONF_PASSWD.";") or die "Could not connect to MySQL";
+    my $DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Can't connect to database: $DBI::errstr\n";
     my $DB_STATEMENT;
     my $DB_SQL;
     my $DB_ROW;

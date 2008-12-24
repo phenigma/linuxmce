@@ -109,8 +109,8 @@ else
 	ConfDep_Distro=
 fi
 
-echo /usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install
-/usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert install >"$CUsh.$$"
+echo /usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n $PLUTO_DB_CRED -D "$MySqlDBName" -d $PK_Device $Orbiter_Alert install
+/usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n $PLUTO_DB_CRED -D "$MySqlDBName" -d $PK_Device $Orbiter_Alert install >"$CUsh.$$"
 linecount=$(cat "$CUsh.$$" | wc -l)
 awk "NR<$linecount-4" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
@@ -124,13 +124,13 @@ fi
 Unlock "InstallNewDevice" "Config_Device_Changes"
 #rm "$CUsh"
 
-echo /usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert buildall
+echo /usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n $PLUTO_DB_CRED -D "$MySqlDBName" -d $PK_Device $Orbiter_Alert buildall
 mkdir -p /usr/pluto/sources
 
 : >"/usr/pluto/sources/buildall.sh"
 echo '#!/bin/bash' >>"/usr/pluto/sources/buildall.sh"
 echo "cd /usr/pluto/sources" >>"/usr/pluto/sources/buildall.sh"
-/usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device $Orbiter_Alert buildall >>"/usr/pluto/sources/buildall.sh"
+/usr/pluto/bin/ConfirmDependencies $ConfDep_Distro -n $PLUTO_DB_CRED -D "$MySqlDBName" -d $PK_Device $Orbiter_Alert buildall >>"/usr/pluto/sources/buildall.sh"
 rm -f "/usr/pluto/install/compile.sh" # old version mistake precaution
 ln -sf "/usr/pluto/sources/buildall.sh" "/usr/pluto/install/compile.sh"
 chmod +x "/usr/pluto/sources/buildall.sh"

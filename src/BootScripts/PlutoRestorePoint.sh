@@ -36,18 +36,18 @@ if [[ "$1" == "--backup" ]]; then
 	mkdir -p "$FULLPATH"
 	echo "$BackupDescription" > "$FULLPATH/README"
 	
-	# backup mysql 
+	# backup database tables 
 	mkdir -p $FULLPATH/mysql
-	dbtables=$(mysql -u root -D pluto_main -N -e "select Tablename from psc_local_tables")
-	dbtables=$(echo $dbtables psc_local_batdet psc_local_bathdr psc_local_batuser psc_local_repset psc_local_schema psc_local_tables)
+	dbtables=$(RunSQL "select Tablename from psc_local_tables")
+	dbtables="$dbtables psc_local_batdet psc_local_bathdr psc_local_batuser psc_local_repset psc_local_schema psc_local_tables"
 	
 	for table in $dbtables
 	do
-		/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table -u root pluto_main $table  > $FULLPATH/mysql/$table-$BKPDIR.sql
+		/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table --skip-extended-insert $MYSQL_DB_CRED "$MySqlDBName" $table  > $FULLPATH/mysql/$table-$BKPDIR.sql
 	done
 
 	mkdir -p $FULLPATH/asterisk
-	/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table -u root asterisk > $FULLPATH/asterisk/asterisk.sql
+	/usr/bin/mysqldump -e --quote-names --allow-keywords --add-drop-table --skip-extended-insert $MYSQL_DB_CRED asterisk > $FULLPATH/asterisk/asterisk.sql
 	
 	# backup pluto-admin
 	mkdir -p $FULLPATH/usr/pluto/orbiter
@@ -93,15 +93,17 @@ if [[ "$1" == "--restore" ]]; then
 		# restore mysql
 		cd $BKPDIR/mysql
 		dbtables=$(ls)
-		# restore old mysql data
+		# restore old database data
 		for table in $dbtables
 		do
-			/usr/bin/mysql -u root -D pluto_main < $table
+			RunSQL < $table
 		done
 		
 		# restore asterisk settings
 		cd $BKPDIR/asterisk
-		/usr/bin/mysql -u root asterisk < asterisk.sql
+		UseDB asterisk
+		RunSQL < asterisk.sql
+		UseDB "$MySqlDBName"
 		/etc/init.d/asterisk restart
 
 		## Reinstall this packages so we'll have an updates database schema
