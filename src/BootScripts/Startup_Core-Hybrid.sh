@@ -3,6 +3,10 @@
 invoke-rc.d mysql start
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Utils.sh
+
+DEVICETEMPLATE_Generic_PC_as_MD="28"
+DEVICETEMPLATE_Orbiter="62"
 
 if [[ -f /etc/pluto/install_cleandb ]]; then
 	. /usr/pluto/bin/SQL_Ops.sh
@@ -64,7 +68,8 @@ if [ -x /usr/pluto/bin/lmce_launch_manager.sh ]
 then
 	/usr/pluto/bin/lmce_launch_manager.sh
 else
-	OrbiterID=20
+	HybridID=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_Generic_PC_as_MD" norecursion)
+	OrbiterID=$(FindDevice_Template "$HybridID" "$DEVICETEMPLATE_Orbiter" norecursion)
 	/usr/bin/screen -d -m -S OnScreen_Orbiter-${OrbiterID} /usr/pluto/bin/Spawn_Device.sh $OrbiterID $DCERouter LaunchOrbiter.sh
 fi
 

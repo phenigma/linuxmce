@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DEVICETEMPLATE_Orbiter="62"
+
 Message() {
     echo -en "\033[1m# $*"
     tput sgr0
@@ -76,6 +78,9 @@ fi
 if [[ -f /usr/pluto/bin/SQL_Ops.sh ]] ;then
 	. /usr/pluto/bin/SQL_Ops.sh
 fi
+if [[ -f /usr/pluto/bin/Utils.sh ]] ;then
+	. /usr/pluto/bin/Utils.sh
+fi
 
 ## Assure that /home is mounted
 for i in `seq 1 5` ;do
@@ -140,7 +145,8 @@ if [ -x /usr/pluto/bin/lmce_launch_manager.sh ]
 then
 	/usr/pluto/bin/lmce_launch_manager.sh
 else
-	OrbiterID=$((PK_Device+2))
+	/usr/pluto/bin/StartHAL.sh
+	OrbiterID=$(FindDevice_Template "$PK_Device" "$DEVICETEMPLATE_Orbiter" norecursion)
 	/usr/bin/screen -d -m -S OnScreen_Orbiter-${OrbiterID} /usr/pluto/bin/Spawn_Device.sh $OrbiterID $DCERouter LaunchOrbiter.sh
 fi
 
