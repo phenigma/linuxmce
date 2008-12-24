@@ -25,7 +25,7 @@ case "$1" in
 		fi
 	
 		echo $$ > $pidfile
-		axfiles=$(RunSQL "SELECT PK_File AS Filename FROM File LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType IN (3,4,5,27,28) AND (Scanned IS NULL OR Scanned=0) AND Missing = 0 AND IsDirectory=0 GROUP BY PK_File HAVING count(FK_Picture)=0 ;" | wc -w)
+		maxfiles=$(RunSQL "SELECT PK_File AS Filename FROM File LEFT JOIN Picture_File ON Picture_File.FK_File=PK_File LEFT JOIN CoverArtScan ON CoverArtScan.FK_File=PK_File WHERE EK_MediaType IN (3,4,5,27,28) AND (Scanned IS NULL OR Scanned=0) AND Missing = 0 AND IsDirectory=0 GROUP BY PK_File HAVING count(FK_Picture)=0 ;" | wc -w)
 	
 		while [ $startid -lt $maxfiles ]; do
 			lynx -dump -width=300 "http://$webhost/pluto-admin/genwget.php?from=$startid&range=$range" > $wgetlist
