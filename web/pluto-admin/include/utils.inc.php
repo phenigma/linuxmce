@@ -6904,4 +6904,3 @@ function escape ( $str, $magic_quotes = false )
 }
 
 ?>
-
