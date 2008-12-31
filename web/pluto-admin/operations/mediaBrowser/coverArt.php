@@ -319,7 +319,8 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 	//get title and performer for audio media
 	$filters=array();	
 	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==4 && count($dataArray)>0){
-		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+		// TODO - Ugly hack for large media collections. We limit the amount of files we return.
+		$rs=$mediadbADO->Execute('SELECT FK_File, FK_AttributeType, Name FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType IN (2,3) AND FK_File IN ('.join(',',array_keys($dataArray)).') LIMIT 0,10000');
 		while($row=$rs->FetchRow()){
 			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 		}
@@ -327,7 +328,8 @@ function multi_page_items($dataArray,$searchIndex,$ipp,$type,$itemName,$mediaTyp
 
 	//get title video media
 	if(($type=='filesNoCover' || $type=='allFiles') && $mediaType==3 && count($dataArray)>0){
-		$rs=$mediadbADO->Execute('SELECT * FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType=13 AND FK_File IN ('.join(',',array_keys($dataArray)).')');
+		// TODO - Ugly hack for large media collections. We limit the amount of files we return.
+		$rs=$mediadbADO->Execute('SELECT FK_File, FK_AttributeType, Name FROM File_Attribute INNER JOIN Attribute ON FK_Attribute=PK_Attribute INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType WHERE FK_AttributeType=13 AND FK_File IN ('.join(',',array_keys($dataArray)).') LIMIT 0,10000');
 		while($row=$rs->FetchRow()){
 			$filters[$row['FK_File']][$row['FK_AttributeType']]=$row['Name'];
 		}
