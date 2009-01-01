@@ -157,6 +157,11 @@ function Build_Replacements_Intrepid
 		popd
 	fi
 
+	#Package: vdr-plugin-xineliboutput
+	Build_Replacement_Package vdr-plugin-xineliboutput ubuntu/vdr-plugin-xineliboutput-1.0.1+lmce
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/libxine*.deb ${replacements_dir}
+	cp ${svn_dir}/${svn_branch_name}/ubuntu/xineliboutput-*.deb ${replacements_dir}
+
 	#Package: zaptel-modules
 	DisplayMessage "Building zaptel-modules"
 	m-a --non-inter -ft -l $KVER a-b zaptel
