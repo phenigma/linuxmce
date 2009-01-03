@@ -33,9 +33,10 @@ $searchString=(isset($_REQUEST['Keyword1Type']))?$_REQUEST['Keyword1Type'].'='.$
 $searchString.=(isset($_REQUEST['Keyword2Type']))?'&'.$_REQUEST['Keyword2Type'].'='.$Keyword2Search:'';
 $searchString.=(isset($_REQUEST['Keyword3Type']))?'&'.$_REQUEST['Keyword3Type'].'='.$Keyword3Search:'';
 
-$orderBy=($searchIndex=='Music')?'titlerank':'relevancerank';
+$orderBy=($searchIndex=='Music')?'titlerank':'salesrank';
 // Make the request for cover arts
-$request='http://webservices.amazon.com/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&Sort='.$orderBy.'&'.$searchString;
+$requestCountry = "com"; // can be changed to co.uk, de, jp, fr or ca instead - Thanks to xtra on the wiki.
+$request='http://webservices.amazon." . $requestCountry . "/onca/xml?Service=AWSECommerceService&AssociateTag='.ASSOCIATES_ID.'&Version='.AES_VERSION.'&SubscriptionId='. SUBID.'&Operation=ItemSearch&SearchIndex='.$searchIndex.'&ResponseGroup=Medium&Sort='.$orderBy.'&'.$searchString;
 echo $request;
 writeFile($GLOBALS['WebExecLogFile'],date('d-m-Y H:i:s')."\t".$request."\n",'a+');
 
