@@ -542,10 +542,21 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		
 		if(isset($_POST['delSelected'])){
 			$fileAttributes=getAssocArray('File_Attribute','FK_Attribute','FK_Attribute',$mediadbADO,'WHERE FK_File='.$fileID);
-			
+			$fileLongAttributes = getAssocArray('LongAttribute','PK_LongAttribute','PK_LongAttribute',$mediadbADO,'WHERE FK_File='.$fileID);
+			$filePictures = getAssocArray('Picture_File', 'FK_Picture', 'FK_Picture', $mediadbADO, 'WHERE FK_FILE='.$fileID);
 			foreach ($fileAttributes AS $aID){
 				if(isset($_POST['attribute_'.$aID])){
 					$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=? AND FK_Attribute=?',array($fileID,$aID));
+				}
+			}
+			foreach ($fileLongAttributes AS $aID){
+				if(isset($_POST['longattribute_'.$aID])){
+					$mediadbADO->Execute('DELETE FROM LongAttribute WHERE FK_File=? AND PK_LongAttribute=?',array($fileID,$aID));
+				}
+			}
+			foreach ($fileAttributes AS $aID){
+				if(isset($_POST['attribute_'.$aID])){
+					$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=? AND FK_Picture=?',array($fileID,$aID));
 				}
 			}
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path).'"';
