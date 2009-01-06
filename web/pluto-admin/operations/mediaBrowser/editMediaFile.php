@@ -53,7 +53,7 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 		for (i = 0; i < editMediaFile.elements.length; i++)
 		   {
 			tmpName=editMediaFile.elements[i].name;
-		     if (editMediaFile.elements[i].type == "checkbox" && tmpName.indexOf("attribute_")!=-1)
+		     if (editMediaFile.elements[i].type == "checkbox" && (tmpName.indexOf("attribute_")!=-1 || tmpName.indexOf("picture_")!=-1))
 		     {
 		         editMediaFile.elements[i].checked = val;
 		     }
@@ -151,6 +151,12 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				<td><B>'.$TEXT_FILE_FORMAT_CONST.':</B></td>
 				<td>'.pulldownFromArray($fileFormat,'fileFormat',$rowFile['FK_FileFormat']).'</td>
 			</tr>				
+			<tr>
+				<td colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
+				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
+				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
+				</td>
+			</tr>			
 			<tr bgcolor="#EBEFF9">
 				<td valign="top"><B>'.$TEXT_ATTRIBUTES_CONST.':</B></td>
 				<td><table width="100%">';
@@ -173,13 +179,6 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 							<td width="100" align="center"><a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dAtr='.$rowAttributes['PK_Attribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
 						</tr>';
 			}
-			if($resAttributes->RecordCount()>0){
-				$out.='
-				<tr>
-					<td><input type="checkbox" value="1" name="all" onClick="setAll(0);"></td>
-					<td colspan="3"><a href="javascript:setAll(1);">Select/unselect all</a> <input type="submit" class="button" name="delSelected" value="Delete selected" onClick="if(!confirm(\'Are you sure you want to remove those attributes?\'))return false;"></td>
-				</tr>';
-			}
 			$out.='
 				</table></td>
 			</tr>			
@@ -191,12 +190,13 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				FROM LongAttribute
 				INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
 				WHERE FK_File=?';
-			$resAttributes=$mediadbADO->Execute($queryAttributes,$fileID);
+			$resLongAttributes=$mediadbADO->Execute($queryAttributes,$fileID);
 			$pos=0;
-			while($rowAttributes=$resAttributes->FetchRow()){
+			while($rowAttributes=$resLongAttributes->FetchRow()){
 				$pos++;
 				$out.='
 						<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
+							<td width="20"><input type="checkbox" value="1" name="longattribute_'.$rowAttributes['PK_LongAttribute'].'"></td>
 							<td width="100"><b>'.$rowAttributes['Description'].'</b></td>
 							<td>'.nl2br($rowAttributes['Text']).'</td>
 							<td width="100" align="center"><a href="index.php?section=editLongAttribute&laID='.$rowAttributes['PK_LongAttribute'].'&fileID='.$fileID.'">'.$TEXT_EDIT_CONST.'</a> <a href="#" onClick="if(confirm(\''.$TEXT_DELETE_ATTRIBUTE_FROM_FILE_CONFIRMATION_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=delete&dLAtr='.$rowAttributes['PK_LongAttribute'].'&dpath='.urlencode(stripslashes($rowFile['Path'])).'\'">'.$TEXT_REMOVE_CONST.'</a></td>
@@ -207,19 +207,12 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			</tr>			
 			
 			<tr>
-				<td colspan="2"><input type="submit" class="button" name="update" value="'.$TEXT_UPDATE_CONST.'"> <input type="reset" class="button" name="cancelBtn" value="'.$TEXT_CANCEL_CONST.'">
-				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
-				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
-				</td>
-			</tr>			
-			<tr>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
 				<td valign="top" align="left"><B>'.$TEXT_PICTURES_CONST.'</B></td>
-				<td valign="top" align="left" colspan="6"><table border="0">
-			<tr>';
+				<td valign="top" align="left" colspan="6"><table width="100%" border="0">';
 			$queryPictures='
 				SELECT * FROM Picture_File
 				INNER JOIN Picture ON Picture_File.FK_Picture=PK_Picture
@@ -231,24 +224,37 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 				if(!in_array($rowPictures['PK_Picture'],$picsArray)){
 					$picsArray[]=$rowPictures['PK_Picture'];
 				}
-
-				$picsCount++;
-				$out.='
-					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> 
-						<br>
-						<input type="text" name="url_'.$rowPictures['PK_Picture'].'" value="'.$rowPictures['URL'].'">
-						<br>
-						<a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'&path='.htmlentities($rowFile['Path']).'\';">'.$TEXT_DELETE_CONST.'</a></td>
-				';
-				if($picsCount%$picsPerLine==0)
-					$out.='</tr><tr>';
+				$out .= '
+					<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#FFFFFF').'">
+					<td width="20"><input type="checkbox" value="1" name="picture_'.$rowPictures['PK_Picture'].'"></td>
+					<td valign="center" width="100"><input type="text" name="url_'.$rowPictures['PK_Picture'].'" value="'.$rowPictures['URL'].'"></td>
+					<td valign="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a></td>
+					<td width="100"><a href="#" onClick="if(confirm(\''.$TEXT_CONFIRM_DELETE_PICTURE_CONST.'\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'&path='.htmlentities($rowFile['Path']).'\';">'.$TEXT_DELETE_CONST.'</a></td>
+					</tr>
+					';
 			}
 			$out.='
-					</tr>
 				</table>
 				<input type="hidden" name="picsArray" value="'.join(',',$picsArray).'">
 				</td>
-			</tr>
+			</tr>';
+			if($resAttributes->RecordCount() > 0 | $resLongAttributes->RecordCount() > 0 || $resPictures->RecordCount() > 0){
+				$out.='
+				<tr>
+					<td></td>
+					<td><table width="100%"><tr>
+						<td><input type="checkbox" value="1" name="all" onClick="setAll(0);"></td>
+						<td colspan="2">
+							<a href="javascript:setAll(1);">Select/unselect all</a>
+							<input type="submit" class="button" name="delSelected" value="Delete selected" onClick="if(!confirm(\'Are you sure you want to remove those attributes?\'))return false;">';
+				if($rowFile['IsDirectory']==1){
+					$out .= '
+						<input type="submit" class="button" name="addSelectedRecursively" value="Add recursively" onClick="if(!confirm(\'Are you sure you want to add those attributes to all files under this directory?\'))return false;">
+						<input type="submit" class="button" name="replaceSelectedRecursively" value="Add/replace recursively" onClick="if(!confirm(\'Are you sure you want to add or replace those attributes to all files under this director?\nNote, all attributes of the same types will be deleted before!\'))return false;">';
+				}
+				$out .= '</td></tr></table></td></tr>';
+			}
+			$out .= '
 			<tr>
 				<td><B>'.$TEXT_ADD_PICTURE_CONST.'</B><br><em>'.$TEXT_JPG_ONLY_CONST.'</em></td>
 				<td colspan="6"> '.$TEXT_URL_CONST.' <input type="text" name="newUrl" value=""> '.$TEXT_FILE_CONST.' <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="'.$TEXT_ADD_PICTURE_CONST.'"></td>
@@ -561,7 +567,44 @@ function editMediaFile($output,$mediadbADO,$dbADO) {
 			}
 			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path).'"';
 			exec_batch_command($cmd);
-		}		
+		}
+		
+		
+		// if attributes should be replaced recursivley, first delete all attributes of same type and then add the attributes
+		if(isset($_POST['replaceSelectedRecursively'])) {
+			// get list of all files below our directory
+			$myFiles = getFilesRecursively($fileID, $mediadbADO);
+
+			// get all attributes and extract those that have been selected
+			$attributes = getSelectedAttributesForFile($fileID, $mediadbADO);
+			$attributeTypes = getTypesOfAttributes($attributes, $mediadbADO);
+			// add attributes to all files
+			foreach($myFiles as $myFileId) {
+				removeAttributeTypes($myFileId, $attributeTypes, $mediadbADO);
+				setAttributes($myFileId, $attributes, $mediadbADO);
+			}		
+			// call UpdateMedia
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path.'/'.$fileID).'"';
+			exec_batch_command($cmd);
+		}
+		
+		// add selected attributes to all files/directories below the current directory
+		if(isset($_POST['addSelectedRecursively'])) {
+			// get list of all files below our directory
+			$myFiles = getFilesRecursively($fileID, $mediadbADO);
+
+			// get all attributes and extract those that have been selected
+			$attributes = getSelectedAttributesForFile($fileID, $mediadbADO);
+			
+			// add attributes to all files
+			foreach($myFiles as $myFileId) {
+				setAttributes($myFileId, $attributes, $mediadbADO);
+			}		
+			// call UpdateMedia
+			$cmd='sudo -u root /usr/pluto/bin/UpdateMedia -w -d "'.bash_escape($path.'/'.$fileID).'"';
+			exec_batch_command($cmd);
+		}
+		
 		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg='.$TEXT_MEDIA_FILE_UPDATED_CONST);			
 	}
 
@@ -601,4 +644,92 @@ function web_rename($source, $destination){
 	$cmd='sudo -u root /usr/pluto/bin/Web_Rename.sh "'.bash_escape($source).'" "'.bash_escape($destination).'"';
 	return exec_batch_command($cmd);
 }
+
+function getFilesRecursively($fileID, $mediadbADO) {
+	$myFiles = array();
+	
+	//  get top file
+	$res = $mediadbADO->Execute("SELECT `Filename`, `Path`, `isDirectory` FROM `File` WHERE `PK_File` = ".$fileID);
+	$row = $res->FetchRow();
+	// only proceed if this is a directory
+	if($row['isDirectory'] == 1) {
+		$topFileName = $row['Filename'];
+		$topFilePath = $row['Path'];
+		
+		// get all files below the selected one and put their ID into an array
+		$res = $mediadbADO->Execute("SELECT `PK_File` FROM `File` WHERE `Path` LIKE '".$topFilePath."/".$topFileName."%'");
+		while($row = $res->FetchRow()) {
+				$myFiles[] = $row['PK_File'];
+		}
+	}
+	return $myFiles;
+}
+
+function getSelectedAttributesForFile($PK_File, $mediadbADO) {
+		$fileAttributes = getAssocArray('File_Attribute','FK_Attribute','FK_Attribute',$mediadbADO,'WHERE FK_File='.$PK_File);
+		$fileLongAttributes = getAssocArray('LongAttribute','PK_LongAttribute','PK_LongAttribute',$mediadbADO,'WHERE FK_File='.$PK_File);
+		$filePictures = getAssocArray('Picture_File', 'FK_Picture', 'FK_Picture', $mediadbADO, 'WHERE FK_FILE='.$PK_File);
+		$attributes = array();
+		foreach($fileAttributes as $attribute) {
+			if(isset($_POST['attribute_'.$attribute])) {
+				$attributes['Attribute'][] = $attribute;
+			}
+		}
+		foreach($fileLongAttributes as $attribute) {
+			if(isset($_POST['longattribute_'.$attribute])) {
+				$attributes['LongAttribute'][] = $attribute;
+			}
+		}
+		foreach($filePictures as $attribute) {
+			if(isset($_POST['picture_'.$attribute])) {
+				$attributes['Picture'][] = $attribute;
+			}
+		}
+		return $attributes;
+}
+
+function setAttributes($PK_File, $attributes, $mediadbADO) {
+	if(isset($attributes['Attribute'])) foreach($attributes['Attribute'] as $attribute) {
+		$mediadbADO->Execute("DELETE FROM `File_Attribute` WHERE `FK_File` = '".$PK_File."' AND `FK_Attribute` = '".$attribute."'");
+		$mediadbADO->Execute("INSERT INTO `File_Attribute` (`FK_File`, `FK_Attribute`) VALUES ('".$PK_File."', '".$attribute."')");
+	}
+	if(isset($attributes['LongAttribute'])) foreach($attributes['LongAttribute'] as $attribute) {
+		$mediadbADO->Execute("INSERT INTO `LongAttribute` (`FK_File`, `FK_AttributeType`, `Text`) SELECT '".$PK_File."', `FK_AttributeType`, `Text` FROM `LongAttribute` WHERE `PK_LongAttribute` = '".$attribute."'")
+	}
+	if(isset($attributes['Picture']))  foreach($attributes['Picture'] as $attribute) {
+		$mediadbADO->Execute("DELETE FROM `Picture_File` WHERE `FK_File` = '".$PK_File."' AND `FK_Picture` = '".$attribute."'");
+		$mediadbADO->Execute("INSERT INTO `Picture_File` (`FK_File`, `FK_Picture`) VALUES ('".$PK_File."', '".$attribute."')");
+	}
+}
+
+function removeAttributeTypes($myFileID, $attributeTypes, $mediadbADO) {
+	if(isset($attributeTypes['Attribute'])) foreach($attributeTypes['Attribute'] as $attributeType) {
+		$mediadbADO->Execute("DELETE FROM `File_Attribute` WHERE `FK_File` = '".$myFileID."' AND `FK_Attribute` IN (SELECT `PK_Attribute` FROM `Attribute` WHERE `FK_AttributeType` = '".$attributeType."')");
+	}
+	if(isset($attributeTypes['LongAttribute'])) foreach($attributeTypes['LongAttribute'] as $attributeType) {
+		$mediadbADO->Execute("DELETE FROM `LongAttribute` WHERE `FK_File` = '".$myFileID."' AND `FK_AttributeType` = '".$attributeType."'");
+	}
+	if(isset($attributeTypes['Picture']))  {
+		$mediadbADO->Execute("DELETE FROM `Picture_File` WHERE `FK_File` = '".$myFileID."'");
+	}
+}
+
+function getTypesOfAttributes($attributes, $mediadbADO) {
+	$types = array();
+	if(isset($attributes['Attribute'])) foreach($attributes['Attribute'] as $attribute) {
+		$res = $mediadbADO->Execute("SELECT `FK_AttributeType` FROM `Attribute` WHERE `PK_Attribute` = '".$attribute."'");
+		$row = $res->FetchRow();
+		$types['Attribute'][] = $row['FK_AttributeType'];
+	}
+	if(isset($attributes['LongAttribute'])) foreach($attributes['LongAttribute'] as $attribute) {
+		$res = $mediadbADO->Execute("SELECT `FK_AttributeType` FROM `LongAttribute` WHERE `PK_LongAttribute` = '".$attribute."'");
+		$row = $res->FetchRow();
+		$types['LongAttribute'][] = $row['FK_AttributeType'];
+	}
+	if(isset($attributes['Picture']))  {
+		$types['Picture'][] = '1';
+	}
+	return $types;
+}
+
 ?>
