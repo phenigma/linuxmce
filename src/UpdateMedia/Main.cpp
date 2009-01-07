@@ -343,6 +343,10 @@ int main(int argc, char *argv[])
 	bSyncFilesOnly=false;
 	sDirectory="/home/";
 
+        string sPlutoMediaDbName = "pluto_media";
+        string sPlutoMainDbName = "pluto_main";
+
+
 	string sDBHost;
 	string sDBUser;
 	string sDBPassword;
@@ -385,6 +389,12 @@ int main(int argc, char *argv[])
 		case 'p':
 			sDBPassword = argv[++optnum];
 			break;
+		case 'D':
+			sPlutoMainDbName = argv[++optnum];
+			break;
+		case 'M':
+			sPlutoMediaDbName = argv[++optnum];
+			break;
 		case 'P':
 			iDBPort = atoi(argv[++optnum]);
 			break;
@@ -416,16 +426,18 @@ int main(int argc, char *argv[])
 	if ( bError )
 	{
 		cout << "UpdateMedia, v." << VERSION << endl
-			<< "Usage: UpdateMedia [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
+			<< "Usage: UpdateMedia [-h hostname] [-u username] [-p password]" << endl
+			<< "[-D main database] [-M media database] [-P mysql port]" << endl
 			<< "[-d The list with directories, pipe delimited] [-U UPnP mount point to scan] [-s] [-t]" << endl
-			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
-			<< "username    -- username for database connection" << endl
-			<< "password    -- password for database connection, default is `` (empty)" << endl
-			<< "database    -- database name.  default is pluto_main" << endl
-			<< "-s          -- Update all search tokens" << endl
-			<< "-t          -- Update all thumbnails" << endl
-			<< "-w			-- Synchronize files only" << endl
-			<< "-B          -- Run as daemon" << endl
+			<< "hostname       -- address or DNS of database host, default is `dce_router`" << endl
+			<< "username       -- username for database connection" << endl
+			<< "password       -- password for database connection, default is `` (empty)" << endl
+			<< "main database  -- main database name.  default is pluto_main" << endl
+			<< "media database -- media database name.  default is pluto_media" << endl
+			<< "-s             -- Update all search tokens" << endl
+			<< "-t             -- Update all thumbnails" << endl
+			<< "-w             -- Synchronize files only" << endl
+			<< "-B             -- Run as daemon" << endl
 			<< "Directory defaults to /home" << endl;
 
 		exit(1);
@@ -481,8 +493,6 @@ int main(int argc, char *argv[])
         g_ConnectionMutex.Init(NULL);
 		g_FoldersListMutex.Init(NULL, &g_ActionCond);
 
-        string sPlutoMediaDbName = "pluto_media";
-        string sPlutoMainDbName = "pluto_main";
 
 #ifdef USE_DEVEL_DATABASES
         sPlutoMediaDbName = "pluto_media_devel";
