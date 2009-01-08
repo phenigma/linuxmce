@@ -227,11 +227,11 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 							$out=$out.
 						'<Table border=0 cellpadding=0 cellspacing=0>
 							<tr>
-								<td width=25>&nbsp</td>
-								<td width=200>&nbsp</td>
-								<td width=200>&nbsp</td>
-								<td width=200>&nbsp</td>
-								<td width=25>&nbsp</td>
+								<td width=25>&nbsp;</td>
+								<td width=200>&nbsp;</td>
+								<td width=200>&nbsp;</td>
+								<td width=200>&nbsp;</td>
+								<td width=25>&nbsp;</td>
 							</tr>
 							<tr>
 		
@@ -253,22 +253,22 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 								<td colspan=5><img src="./operations/mediaBrowser/images/addBottomBorder.png"></td>
 							</tr>
 							<tr rowspan = 3 height=50>
-								<td>&nbsp</td>
+								<td>&nbsp;</td>
 								<td rowspan=3 valign="Top" height=115><img src="./operations/mediaBrowser/images/addArrow.png" onClick="moveDualList(document.getElementById(\'toAddList\'),document.getElementById(\'addedList\'),false);"></td>
 								<td><img src="./operations/mediaBrowser/images/removeAll.png" onClick="moveDualList(document.getElementById(\'addedList\'),document.getElementById(\'toAddList\'),true);"></td>
 								<td rowspan = 3 valign="Bottom"><img src="./operations/mediaBrowser/images/removeArrow.png" onClick="moveDualList(document.getElementById(\'addedList\'),document.getElementById(\'toAddList\'),false);"></td>
-								<td>&nbsp</td>
+								<td>&nbsp;</td>
 							</tr>
 							<tr height=15>
-								<td&nbsp</td>
-								<td>&nbsp</td>
-								<td>&nbsp</td>
+								<td&nbsp;</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
 		
 							</tr>
 							<tr height=50>
-								<td>&nbsp</td>
+								<td>&nbsp;</td>
 								<td><img src="./operations/mediaBrowser/images/addAll.png" onClick="moveDualList(document.getElementById(\'toAddList\'),document.getElementById(\'addedList\'),true);"></td>
-								<td>&nbsp</td>
+								<td>&nbsp;</td>
 		
 		
 							</tr>
@@ -297,7 +297,7 @@ function editPlaylist($output,$mediadbADO,$dbADO) {
 							</tr>
 							<tr>
 								<td colspan=5>
-									&nbsp
+									&nbsp;
 								</td>						
 							</tr>
 						</Table>';
