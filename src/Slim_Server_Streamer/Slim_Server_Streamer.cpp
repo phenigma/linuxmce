@@ -44,7 +44,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
     // This is good because you can also restrict the control of the server only to connections from that machine.
     m_strSlimServerCliAddress = "127.0.0.1"; // hard code it here for now.
-    m_iSlimServerCliPort = 7890;
+    m_iSlimServerCliPort = 9090;
 	m_threadPlaybackCompletedChecker = 0;
 
     m_iServerSocket = -1;
