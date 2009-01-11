@@ -21,7 +21,7 @@ my $STATUS = 0;
 
 #connect to databases
 $DB_PL_HANDLE = DBI->connect(&read_pluto_cred()) or die "Could not connect to MySQL";
-$DB_AS_HANDLE = DBI->connect((&read_pluto_cred('asterisk')) or die "Could not connect to MySQL";
+$DB_AS_HANDLE = DBI->connect(&read_pluto_cred('asterisk')) or die "Could not connect to MySQL";
 
 #replace with the ip address of the asterisk server
 my $serv_IP=getIP();
