@@ -391,7 +391,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 				&&  $coverArtIcon == '')) {
     		    $out.='	
 			    <tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
-				    <td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> '.$coverArtIcon:'<B>'.$filename.'</B> '.$addToDB).'</td>
+				    <td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').$coverArtIcon.' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> ':'<B>'.$filename.'</B> '.$addToDB).'</td>
 			    </tr>';
 		    if(@$inDB==1){
  			    if($_SESSION['show_attributes']==1) {
