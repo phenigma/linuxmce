@@ -9,9 +9,7 @@ CPPFLAGS += -I/usr/include/mysql
 LDFLAGS += -lmysqlclient_r
 #<-mkr_B_use_mysql_wrapper_e->
 
-#<-mkr_b_use_mysql_wrapper_b->
-CPPFLAGS += -DUSE_MYSQL_WRAPPER
-#<-mkr_b_use_mysql_wrapper_e->
+#
 
 sources = ../db_wrapper/db_wrapper.cpp ../db_wrapper/ClientSocket.cpp ../db_wrapper/Socket.cpp Database_pluto_main.cpp TableRow.cpp \
 Table_Array.cpp \
@@ -105,6 +103,8 @@ Table_Device_Users.cpp \
 Table_Direction.cpp \
 Table_Directory.cpp \
 Table_Distro.cpp \
+Table_Document.cpp \
+Table_Document_Comment.cpp \
 Table_Effect.cpp \
 Table_EffectType.cpp \
 Table_EffectType_Effect_Skin.cpp \
@@ -156,7 +156,6 @@ Table_Package_Package.cpp \
 Table_Package_Source.cpp \
 Table_Package_Source_Compat.cpp \
 Table_Package_Users.cpp \
-Table_Package_Version.cpp \
 Table_PageSetup.cpp \
 Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
@@ -223,6 +222,12 @@ Table_psc_designer_batuser.cpp \
 Table_psc_designer_repset.cpp \
 Table_psc_designer_schema.cpp \
 Table_psc_designer_tables.cpp \
+Table_psc_document_batdet.cpp \
+Table_psc_document_bathdr.cpp \
+Table_psc_document_batuser.cpp \
+Table_psc_document_repset.cpp \
+Table_psc_document_schema.cpp \
+Table_psc_document_tables.cpp \
 Table_psc_ir_batdet.cpp \
 Table_psc_ir_bathdr.cpp \
 Table_psc_ir_batuser.cpp \
