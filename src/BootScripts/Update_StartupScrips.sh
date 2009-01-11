@@ -14,7 +14,7 @@ LEFT JOIN Device_StartupScript ON Device_StartupScript.FK_Device=PK_Device AND D
 WHERE FK_DeviceCategory=8 AND FK_Device_ControlledVia IS NOT NULL
 AND Device_StartupScript.FK_Device IS NULL"
 
-Run_SQL "$Q;"
+RunSQL "$Q;"
 
 Q="INSERT INTO Device_StartupScript(FK_Device,FK_StartupScript,Boot_Order,Background,Enabled,Parameter)
 SELECT PK_Device, PK_StartupScript,MD_Boot_Order,MD_Background,MD_Enabled,MD_Parameter FROM Device
