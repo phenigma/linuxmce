@@ -7,6 +7,8 @@
 
 use Flickr::API;
 use XML::Simple;
+use XML::SAX;
+use XML::Libxml;
 use Image::Magick;
 use Data::Dumper;
 use DBI;
@@ -112,7 +114,8 @@ if ($search_string){
         });
 	if ($response->{success} == 1) {
 		$xs = new XML::Simple;
-		$r=XMLin($response->{_content});
+		# $r=XMLin($response->{_content});
+		$r=XMLin($response->{_content}=$response->decoded_content); 
 		foreach $id (sort keys %{$r->{'photos'}->{'photo'}}) {
 			last if ($picture_nr >= $max_number);
 			my ($width, $height, $source, $download) = getPictureDimensions($id, $api);
@@ -132,7 +135,8 @@ if ($search_string){
                 $response = $api->execute_method('flickr.photos.getInfo',{'photo_id' => $id , 'secret' => $IMGS->{$id}->{'secret'}});
                 if ($response->{success} == 1) {
 			#print "get info for $id\n";
-			$r=XMLin($response->{_content});
+			# $r=XMLin($response->{_content});
+			$r=XMLin($response->{_content}=$response->decoded_content); 
 			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
 			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
 			if (!$IMGS->{$id}->{'format'}){
@@ -183,7 +187,8 @@ if ($search_string){
 
 		if ($response->{success} == 1) {
 			$xs = new XML::Simple;
-			$r=XMLin($response->{_content});
+			# $r=XMLin($response->{_content});
+			$r=XMLin($response->{_content}=$response->decoded_content); 
 			foreach $id (sort keys %{$r->{'photos'}->{'photo'}}) {
 				last if ($picture_nr >= $max_number);
 				my ($width, $height, $source, $download) = getPictureDimensions($id, $api);
@@ -204,7 +209,8 @@ if ($search_string){
 	foreach $id (keys %{$IMGS}) {
 		$response = $api->execute_method('flickr.photos.getInfo',{'photo_id' => $id , 'secret' => $IMGS->{$id}->{'secret'}});
 		if ($response->{success} == 1) {
-			$r=XMLin($response->{_content});
+			# $r=XMLin($response->{_content});
+			$r=XMLin($response->{_content}=$response->decoded_content); 
 			$IMGS->{$id}->{'time'}=$r->{'photo'}->{'dates'}->{'posted'};
 			$IMGS->{$id}->{'username'}=$r->{'photo'}->{'owner'}->{'username'};
 			$IMGS->{$id}->{'format'}=$r->{'photo'}->{'originalformat'};
@@ -513,7 +519,8 @@ sub getPictureDimensions {
 	my ($buff, $width, $height, $source, $download);
 	my $response= $api->execute_method('flickr.photos.getSizes',{'photo_id' => $id});
 	if ($response->{success} == 1) {
-		my $r=XMLin($response->{_content});
+		# my $r=XMLin($response->{_content});
+		my $r=XMLin($response->{_content}=$response->decoded_content); 
 		foreach $buff (@{$r->{'sizes'}->{'size'}}) {
 			if (($buff->{'width'} >= $minW && $buff->{'height'} >= $minH) && 
 			     ($buff->{'width'} <= 2048 && $buff->{'height'} <= 2048) )  {
