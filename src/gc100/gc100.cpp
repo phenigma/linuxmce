@@ -227,6 +227,9 @@ void gc100::ReceivedCommandForChild(DeviceData_Impl *pDeviceData_Impl,string &sC
 		return;
 	}
 
+	// DCE does not populate this structure for our children's children, so we have to do it
+	if (pDeviceData_Impl->m_dwPK_Device_ControlledVia > 0 && pDeviceData_Impl->m_pDevice_ControlledVia == NULL)
+		pDeviceData_Impl->m_pDevice_ControlledVia = m_pData->FindChild(pDeviceData_Impl->m_dwPK_Device_ControlledVia);
 	// Let the IR Base class try to handle the message
 	if (pDeviceData_Impl && pDeviceData_Impl->FindSelfOrParentWithinCategory(DEVICECATEGORY_Infrared_Interface_CONST) != NULL
 		&& IRBase::ProcessMessage(pMessage))
