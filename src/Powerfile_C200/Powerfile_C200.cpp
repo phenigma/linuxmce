@@ -1240,7 +1240,7 @@ void Powerfile_C200::CMD_Load_Disk(bool bMultiple,string &sCMD_Result,Message *p
 		/** @param #223 Block Device */
 			/** The block device for the drive */
 
-void Powerfile_C200::CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
+void Powerfile_C200::CMD_Get_Disk_Info(string *sAaronSpecial, int *iPK_MediaType, int *iAaronSpecial_EKID, string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c914-e->
 {
 	// Should be sent to the children instead

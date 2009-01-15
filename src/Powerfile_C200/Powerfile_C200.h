@@ -429,8 +429,8 @@ only slots that were scheduled for ripping will appear in the string */
 		/** @param #223 Block Device */
 			/** The block device for the drive */
 
-	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device) { string sCMD_Result; CMD_Get_Disk_Info(iPK_MediaType,sDisks,sURL,sBlock_Device,sCMD_Result,NULL);};
-	virtual void CMD_Get_Disk_Info(int *iPK_MediaType,string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Disk_Info(string *sAaronSpecial, int *iPK_MediaType, int *iAaronSpecial_EKID, string *sDisks,string *sURL,string *sBlock_Device) { string sCMD_Result; CMD_Get_Disk_Info(sAaronSpecial, iPK_MediaType, iAaronSpecial_EKID, sDisks,sURL,sBlock_Device,sCMD_Result,NULL);};
+	virtual void CMD_Get_Disk_Info(string *sAaronSpecial, int *iPK_MediaType, int *iAaronSpecial_EKID, string *sDisks,string *sURL,string *sBlock_Device,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -943,7 +943,9 @@ void Security_Plugin::ProcessCountdown(int id,Row_Alert *pRow_Alert)
 
 void Security_Plugin::SayToDevices(string sText,DeviceData_Router *pDeviceData_Router)
 {
-	DCE::CMD_Send_Audio_To_Device CMD_Send_Audio_To_Device(m_dwPK_Device,m_PK_Device_TextToSpeach,sText,DATA_Get_PK_Device());
+	bool bBypass_Event = 0; // TODO aaronspecial
+	bool bDont_Setup_AV = 0;
+	DCE::CMD_Send_Audio_To_Device CMD_Send_Audio_To_Device(m_dwPK_Device,m_PK_Device_TextToSpeach,sText,DATA_Get_PK_Device(),bBypass_Event, bDont_Setup_AV);
 	SendCommand(CMD_Send_Audio_To_Device);
 }
 

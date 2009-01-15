@@ -6897,7 +6897,9 @@ void Media_Plugin::WaitingForJukebox( MediaStream *pMediaStream )
 		// It's possible we were playing a slot without knowing what type of disc was in it.  Fill out the missing info
 		int iPK_MediaType=0;
 		string sDisks,sURL,sBlock_Device;
-		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive,&iPK_MediaType,&sDisks,&sURL,&sBlock_Device);
+		string sAaronSpecial="*grml*"; // TODO hack to get sqlCVS updates back to work.
+		int iAaronSpecial_EKID=0;
+		DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,pMediaFile->m_dwPK_Device_Disk_Drive, &sAaronSpecial, &iPK_MediaType, &iAaronSpecial_EKID, &sDisks,&sURL,&sBlock_Device);
 		if( SendCommand(CMD_Get_Disk_Info) )
 		{
 			LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::WaitingForJukebox stream %d.  Disc loaded in drive.  Now ready.  Got MT %d disks %s url %s block %s",
@@ -7039,7 +7041,9 @@ void Media_Plugin::TransformFilenameToDeque(string sFilename,deque<MediaFile *> 
 		else  // It's a cd.  Need to add tracks
 		{
 			string sDisks,sURL,sBlock_Device;
-			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&PK_MediaType,&sDisks,&sURL,&sBlock_Device);
+			string sAaronSpecial="*grml*"; // TODO hack to get sqlCVS updates back to work.
+			int iAaronSpecial_EKID=0;
+			DCE::CMD_Get_Disk_Info CMD_Get_Disk_Info(m_dwPK_Device,PK_Device_Disk_Drive,&sAaronSpecial, &PK_MediaType, &iAaronSpecial_EKID, &sDisks,&sURL,&sBlock_Device);
 			if( SendCommand(CMD_Get_Disk_Info) )
 			{
 				LoggerWrapper::GetInstance()->Write(LV_STATUS,"Media_Plugin::TransformFilenameToDeque Got cd info MT %d disks %s url %s block %s",
