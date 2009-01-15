@@ -160,7 +160,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sList_PK_Devic
 			int PK_Device = atoi(StringUtils::Tokenize(sList_PK_Device,",",pos).c_str());
 			if( PK_Device )
 			{
-				DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugin,PK_Device,sFile,0,0,"",true,false);
+				DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_dwPK_Device,m_dwPK_Device_MediaPlugin,PK_Device,sFile,0,0,"",true,0,0 /* bQueue */,0 /* bBypass_Event */, 0 /* bDont_Setup_AV */);
 				SendCommand(CMD_MH_Play_Media);
 			}
 		}
