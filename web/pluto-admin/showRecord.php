@@ -9,7 +9,8 @@ require('include/template.class.inc.php');
 $table=$_REQUEST['table'];
 $where=stripslashes($_REQUEST['where']);
 
-$cols=$dbADO->MetaColumnNames($table);
+$table = "`" . $table . "`"; // To circumvent problems with reserved words in table names.
+$cols=$dbADO->MetaColumnNames( $table );
 $fieldsNo=count($cols);
 $out='
 	<table width="600" cellpadding="3" cellspacing="0" style="border-style:inset; border-width:1px;">
@@ -25,7 +26,7 @@ foreach ($cols AS $column){
 }
 $out.='</tr>';
 
-$rs=$dbADO->Execute('SELECT `'.join('`,`',$cols).'` FROM '.$table.' '.$where);
+$rs=$dbADO->Execute('SELECT `'.join('`,`',$cols).'` FROM  '.$table.' '.$where);
 while($row=$rs->FetchRow()){
 	$pos=0;
 	foreach ($cols AS $column){
