@@ -316,7 +316,7 @@ bool ScreenHandler::MediaBrowsre_Intercepted(CallBackData *pData)
 				{
 					mediaFileBrowserOptions.m_sSelectedFile = pCell->m_Value;
 					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-						0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+						0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,0 /* bQueue */, 0 /* bBypass_Event */, 0 /* bDont_Setup_AV */ );
 					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 				}
 			}
@@ -533,7 +533,7 @@ LoggerWrapper::GetInstance()->Write(LV_STATUS,"ScreenHandler::MediaBrowser_Objec
 #endif
 			*/
 		DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
-			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0);
+			0,mediaFileBrowserOptions.m_sSelectedFile,0,0,StringUtils::itos( m_pOrbiter->m_pLocationInfo->PK_EntertainArea ),false,0,0 /* bQueue */, 0 /* bBypass_Event */, 0 /* bDont_Setup_AV */);
 		m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 	}
 	else if( pObjectInfoData->m_PK_DesignObj_SelectedObject == DESIGNOBJ_butFBSF_Delete_CONST )
@@ -2951,7 +2951,7 @@ bool ScreenHandler::DriveOverview_ObjectSelected(CallBackData *pData)
 					int PK_Disc = atoi( pCell->m_mapAttributes_Find("PK_Disc").c_str() );
 					DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 						0,"!r" + StringUtils::itos(PK_Disc) + ":" + pCell->m_Value, // see MediaAttributes_LowLevel::TransformFilenameToDeque
-						0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+						0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0,0 /* bQueue */, 0 /* bBypass_Event */, 0 /* bDont_Setup_AV */);
 					m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 				}
 				else if( pObjectInfoData->m_pObj->m_iBaseObjectID==DESIGNOBJ_butManage_CONST )
@@ -3128,7 +3128,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						int PK_Device = atoi( pCell->m_mapAttributes_Find("PK_Device").c_str() );
 						DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 							0,"!r" + StringUtils::itos(PK_Disc) + ":" + StringUtils::itos(PK_Device), // see MediaAttributes_LowLevel::TransformFilenameToDeque
-							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0,0 /* bQueue */, 0 /* bBypass_Event */, 0 /* bDont_Setup_AV */);
 						m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 					}
 					else
@@ -3138,7 +3138,7 @@ bool ScreenHandler::JukeboxManager_ObjectSelected(CallBackData *pData)
 						int Slot = atoi( pCell->m_mapAttributes_Find("Slot").c_str() );
 						DCE::CMD_MH_Play_Media CMD_MH_Play_Media(m_pOrbiter->m_dwPK_Device,m_pOrbiter->m_dwPK_Device_MediaPlugIn,
 							0,"!r" + StringUtils::itos(PK_Disc) + ":" + StringUtils::itos(PK_Device) + ":" + StringUtils::itos(Slot), // see MediaAttributes_LowLevel::TransformFilenameToDeque
-							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0);
+							0,0,StringUtils::itos(m_pOrbiter->m_pLocationInfo->PK_EntertainArea),false,0,0 /* bQueue */, 0 /* bBypass_Event */, 0 /* bDont_Setup_AV */);
 						m_pOrbiter->SendCommand(CMD_MH_Play_Media);
 					}
 				}
