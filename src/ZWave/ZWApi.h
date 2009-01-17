@@ -221,6 +221,19 @@
 #define COMMAND_CLASS_MANUFACTURER_PROPRIETARY		0x91
 #define COMMAND_CLASS_METER_PULSE			0x35
 #define COMMAND_CLASS_METER				0x32
+
+#define METER_GET					0x01
+#define METER_REPORT					0x02
+#define METER_REPORT_ELECTRIC_METER			0x01
+#define METER_REPORT_GAS_METER				0x02
+#define METER_REPORT_WATER_METER			0x03
+
+#define METER_REPORT_SIZE_MASK				0x07
+#define METER_REPORT_SCALE_MASK				0x18
+#define METER_REPORT_SCALE_SHIFT			0x03
+#define METER_REPORT_PRECISION_MASK			0xe0
+#define METER_REPORT_PRECISION_SHIFT			0x05
+
 #define COMMAND_CLASS_MTP_WINDOW_COVERING		0x51
 #define COMMAND_CLASS_MULTI_INSTANCE_ASSOCIATION	0x8E
 #define COMMAND_CLASS_MULTI_INSTANCE			0x60
@@ -441,6 +454,9 @@ namespace ZWApi {
 
 	// toggle polling
 	void zwPollDevices(bool onoff);
+
+	// read meter
+	bool zwMeterGet(int node_id);
     };
 
 }

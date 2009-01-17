@@ -449,6 +449,46 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 
 						break;
 					;;
+					case COMMAND_CLASS_METER:
+						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_METER");
+						if (frame[6] == METER_REPORT) {
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Got meter report from node %i",(unsigned char)frame[3]);
+							int scale = ( (unsigned char)frame[8] & METER_REPORT_SCALE_MASK ) >> METER_REPORT_SCALE_SHIFT;
+							int precision = ( (unsigned char)frame[8] & METER_REPORT_PRECISION_MASK ) >> METER_REPORT_PRECISION_SHIFT;
+							int size = (unsigned char)frame[8] & METER_REPORT_SIZE_MASK;
+							int value;
+							short tmpval;
+							switch(size) {
+								case 1:
+									value = (signed char)frame[9];
+									;;
+								break;
+								case 2:
+									tmpval = ((unsigned char)frame[9] << 8) + (unsigned char)frame[10];
+									value = (signed short)tmpval;
+									;;
+								break;
+								default:
+									value = ( (unsigned char)frame[9] << 24 ) + ( (unsigned char)frame[10] << 16 ) + ( (unsigned char)frame[11] << 8 ) + (unsigned char)frame[12];
+									value = (signed int)value;
+									;;
+								break;
+							}
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"METER DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
+							// if (precision > 0) { value = value / (precision ^ 10); }  // we only take the integer part for now
+							//if (precision > 0) { value = value / (100000); }  // we only take the integer part for now
+							switch(frame[7]) { // meter type
+								case METER_REPORT_ELECTRIC_METER:
+									if (scale == 0) {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Electric meter measurement received: %d kWh",value);
+									} 
+								default:
+									break;
+							}
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"METER DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
+						}
+						break;
+					;;
 					case COMMAND_CLASS_MANUFACTURER_SPECIFIC:
 						DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"COMMAND_CLASS_MANUFACTURER_SPECIFIC");
 						if (frame[6] == MANUFACTURER_SPECIFIC_REPORT) {
@@ -542,7 +582,8 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 									;;
 								break;
 							}
-							if (precision > 0) { value = value / (precision * 10); }  // we only take the integer part for now
+							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"MULTILEVEL DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
+							if (precision > 0) { value = value / (10 ^ precision ); }  // we only take the integer part for now
 							switch(frame[7]) { // sensor type
 								case SENSOR_MULTILEVEL_REPORT_GENERAL_PURPOSE_VALUE:
 									if (scale == 0) {
@@ -561,11 +602,21 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								;;
 								break;
 								case SENSOR_MULTILEVEL_REPORT_POWER:
-									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Power level measurement received: %d",value);
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"MULTILEVEL DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
+									if (scale == 0) {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Power level measurement received: %d W",value);
+									} else {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Power level measurement received: %d",value);
+									}
 								;;
 								break;
 								case SENSOR_MULTILEVEL_REPORT_CO2_LEVEL:
 									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"CO2 level measurement received: %d ppm",value);
+								;;
+								break;
+								case SENSOR_MULTILEVEL_REPORT_RELATIVE_HUMIDITY:
+									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Relative humidity measurement received: %d percent",value);
+
 								;;
 								break;
 								default:
@@ -1943,3 +1994,17 @@ std::string ZWApi::ZWApi::nodeInfo2String(char *nodeInfo, size_t len) {
 
 	return tmp;
 }
+
+bool ZWApi::ZWApi::zwMeterGet(int node_id) {
+	char mybuf[1024];
+
+	mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+	mybuf[1] = node_id;
+	mybuf[2] = 2; // length of command
+	mybuf[3] = COMMAND_CLASS_METER;
+	mybuf[4] = METER_GET;
+	mybuf[5] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+	sendFunction( mybuf , 6, REQUEST, 1);
+
+}
+
