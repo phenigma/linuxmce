@@ -588,17 +588,17 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 							switch(frame[7]) { // sensor type
 								case SENSOR_MULTILEVEL_REPORT_GENERAL_PURPOSE_VALUE:
 									if (scale == 0) {
-										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose value received: %d %",value);
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose measurement value received: %d %",value);
 									} else {
-										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose value received: %d (dimensionless)",value);
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"General purpose measurement value received: %d (dimensionless)",value);
 									} 
 								;;
 								break;
 								case SENSOR_MULTILEVEL_REPORT_LUMINANCE:
 									if (scale == 0) {
-										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance value received: %d %",value);
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance measurement received: %d %",value);
 									} else {
-										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance value received: %d Lux",value);
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Luminance measurement received: %d Lux",value);
 									} 
 								;;
 								break;
