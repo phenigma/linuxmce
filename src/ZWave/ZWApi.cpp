@@ -33,6 +33,8 @@
 
 DCE::ZWave *DCEcallback;
 
+#include <math.h>	 
+
 extern "C" void *start( void* );
 
 void *start( void *p )
@@ -475,8 +477,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								break;
 							}
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"METER DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
-							// if (precision > 0) { value = value / (precision ^ 10); }  // we only take the integer part for now
-							//if (precision > 0) { value = value / (100000); }  // we only take the integer part for now
+							if (precision > 0) { value = value / pow(10 , precision) ; }  // we only take the integer part for now
 							switch(frame[7]) { // meter type
 								case METER_REPORT_ELECTRIC_METER:
 									if (scale == 0) {
@@ -583,7 +584,7 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								break;
 							}
 							DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"MULTILEVEL DEBUG: precision: %i scale: %i size: %i value: %i",precision,scale,size,value);
-							if (precision > 0) { value = value / (10 ^ precision ); }  // we only take the integer part for now
+							if (precision > 0) { value = value / pow(10 , precision) ; }  // we only take the integer part for now
 							switch(frame[7]) { // sensor type
 								case SENSOR_MULTILEVEL_REPORT_GENERAL_PURPOSE_VALUE:
 									if (scale == 0) {
@@ -617,6 +618,14 @@ void *ZWApi::ZWApi::decodeFrame(char *frame, size_t length) {
 								case SENSOR_MULTILEVEL_REPORT_RELATIVE_HUMIDITY:
 									DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Relative humidity measurement received: %d percent",value);
 
+								;;
+								break;
+								case SENSOR_MULTILEVEL_REPORT_TEMPERATURE:
+									if (scale == 0) {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Temperature level measurement received: %d C",value);
+									} else {
+										DCE::LoggerWrapper::GetInstance()->Write(LV_ZWAVE,"Temperature level measurement received: %d F",value);
+									}
 								;;
 								break;
 								default:
