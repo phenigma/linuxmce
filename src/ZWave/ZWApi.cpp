@@ -1872,8 +1872,8 @@ int ZWApi::ZWApi::getDeviceTemplate(int basic, int generic, int specific, char *
 			devicetemplate = DEVICETEMPLATE_Light_Switch_dimmable_CONST;
 			break;
 		case GENERIC_TYPE_SWITCH_REMOTE:
-#ifdef DEVICETEMPLATE_ZWave_Remote_Switch_CONST
-			devicetemplate = DEVICETEMPLATE_ZWave_Remote_Switch_CONST;
+#ifdef DEVICETEMPLATE_Remote_Switch_CONST
+			devicetemplate = DEVICETEMPLATE_Remote_Switch_CONST;
 #else
 #ifdef DEVICETEMPLATE_ZWave_Controller_CONST
 			devicetemplate = DEVICETEMPLATE_ZWave_Controller_CONST;
@@ -1890,7 +1890,11 @@ int ZWApi::ZWApi::getDeviceTemplate(int basic, int generic, int specific, char *
 			devicetemplate = DEVICETEMPLATE_Drapes_Switch_CONST;
 			break;
 		case GENERIC_TYPE_SENSOR_MULTILEVEL:
+#ifdef DEVICETEMPLATE_Multilevel_Sensor_CONST
+			devicetemplate = DEVICETEMPLATE_Multilevel_Sensor_CONST;
+#else
 			devicetemplate = DEVICETEMPLATE_Generic_Sensor_CONST;
+#endif
 			break;
 	}
 	return devicetemplate;
