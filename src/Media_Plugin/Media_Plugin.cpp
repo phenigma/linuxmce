@@ -1552,7 +1552,7 @@ bool Media_Plugin::StartMedia(MediaStream *pMediaStream)
 	LoggerWrapper::GetInstance()->Write(LV_STATUS,"Ready to call plugin's startmedia");
 	int iPK_Orbiter_PromptingToResume = 0;	string::size_type queue_pos;
 	if( pMediaStream->m_sStartPosition.size()==0 && 
-		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_BD_CONST ) &&  // Don't bother asking for music
+		(pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_HDDVD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_pluto_BD_CONST || pMediaStream->m_iPK_MediaType==MEDIATYPE_lmce_Game_CONST) &&  // Don't bother asking for music
 			(pMediaStream->m_iDequeMediaFile_Pos<0 || pMediaStream->m_iDequeMediaFile_Pos>=pMediaStream->m_dequeMediaFile.size() ||
 			pMediaStream->GetCurrentMediaFile()->m_sStartPosition.size()==0) )
 		iPK_Orbiter_PromptingToResume = CheckForAutoResume(pMediaStream);
