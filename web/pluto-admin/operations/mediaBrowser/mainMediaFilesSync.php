@@ -24,14 +24,21 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 	$_SESSION['show_attributes']=isset($_SESSION['show_attributes'])?$_SESSION['show_attributes']:0;
  	$_SESSION['show_attributes']=isset($_REQUEST['show_attributes'])?$_REQUEST['show_attributes']:$_SESSION['show_attributes'];
  	
-	$_SESSION['show_wocoverart']=isset($_SESSION['show_wocoverart'])?$_SESSION['show_wocoverart']:0;
-	$_SESSION['show_wocoverart']=isset($_REQUEST['show_wocoverart'])?$_REQUEST['show_wocoverart']:$_SESSION['show_wocoverart'];
- 
+	$_SESSION['filter']=(isset($_SESSION['filter']))?$_SESSION['filter']:'filter_coverart';
+	$_SESSION['filter']=(isset($_REQUEST['filter']))?$_REQUEST['filter']:$_SESSION['filter'];
+	$_SESSION['selectedFilterMode']=(isset($_SESSION['selectedFilterMode']))?$_SESSION['selectedFilterMode']:'without';
 	//EDIT BY PAUL MUMBY:
 	//Added doRecursive function to js below
 	if($action=='form'){
 		if($path!=''){
 			$physicalFiles=grabFiles($path,'');
+			
+			$res = $mediadbADO->Execute("(SELECT DISTINCT CONCAT('filter_attribute_', `PK_AttributeType`) AS 'key', `Description` FROM AttributeType) UNION (SELECT 'filter_coverart' AS 'key', 'Coverart' AS 'Description') ORDER BY `Description` ASC");
+			$filterTypes = array();
+			while($row = $res->FetchRow()){
+				$filterTypes[$row['key']] = $row['Description'];
+			}
+			$filterModes = array('with' => 'with', 'without' => 'without');
 			
 			$out.='
 			<script>
@@ -86,6 +93,11 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
 			EDIT BY PAUL MUMBY:
 			ADDED RECURSIVE BUTTON BELOW
 			--!>		
+			<form action="index.php" method="POST" name="mainMediaFilesSync">
+			<input type="hidden" name="section" value="mainMediaFilesSync">
+			<input type="hidden" name="action" value="update">
+			<input type="hidden" name="path" value="'.htmlentities($path).'">
+					
 			<table cellpadding="3" cellspacing="0">
 				<tr bgcolor="#F0F3F8">
 					<td><B>'.$TEXT_DIRECTORY_CONST.': '.$path.'</B></td>
@@ -99,16 +111,16 @@ function mainMediaFilesSync($output,$mediadbADO,$dbADO) {
  			<table>
  				<tr>
  					<input type="checkbox" name="show_attributes" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_attributes='.((@$_SESSION['show_attributes']==1)?0:1).'\'" '.(($_SESSION['show_attributes']==1)?'checked':'').'> '.$TEXT_SHOW_ATTRIBUTES_CONST.'
-					<input type="checkbox" name="show_wocoverart" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_wocoverart='.((@$_SESSION['show_wocoverart']==1)?0:1).'\'" '.(($_SESSION['show_wocoverart']==1)?'checked':'').'> '.$TEXT_SHOW_ONLY_WO_COVERART.'
+					<input type="checkbox" name="show_woattribute" value="1" onclick="self.location=\'index.php?section=mainMediaFilesSync&path='.$path.'&show_woattribute='.((@$_SESSION['show_woattribute']==1)?0:1).'\'" '.(($_SESSION['show_woattribute']==1)?'checked':'').'>Show only items without ';
+					
+			$out .= pulldownFromArray($filterModes,'selectedFilterMode',$_SESSION['selectedFilterMode'],'onChange="document.mainMediaFilesSync.action.value=\'form\';document.mainMediaFilesSync.submit();"','key','').' ';
+			$out .= pulldownFromArray($filterTypes,'filter',$_SESSION['filter'],'onChange="document.mainMediaFilesSync.action.value=\'form\';document.mainMediaFilesSync.submit();"','key','');
+			$out .= '
  				</tr>
  			</table>
 			
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br>
 			<div align="center" class="err"><B>'.@$_REQUEST['error'].'</B></div><br>
-			<form action="index.php" method="POST" name="mainMediaFilesSync">
-			<input type="hidden" name="section" value="mainMediaFilesSync">
-			<input type="hidden" name="action" value="update">
-			<input type="hidden" name="path" value="'.htmlentities($path).'">
 			';
 			
 			if(isset($_REQUEST['filename']) && $_REQUEST['filename']!='')
@@ -341,12 +353,39 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	$ppage=((int)@$_REQUEST['ppage']>0)?(int)$_REQUEST['ppage']:1;
 	$noPages=ceil(count($allPhysicalFiles)/$_SESSION['media_files_per_page']);
 	$physicalFiles=array_slice($allPhysicalFiles,$_SESSION['media_files_per_page']*($ppage-1),$_SESSION['media_files_per_page']);
+	
+	/* evaluate filter conditions */
+	$filter_where = "";
+	$filter_having = "";
+	if($_SESSION['show_woattribute'] == 1) {
+			$filter_where_negator = '';
+			$filter_having_negator = '!';
+		if($_SESSION['selectedFilterMode'] == 'without') {
+			$filter_where_negator = ' NOT ';
+			$filter_having_negator = '';
+		}
+		$attributeTypes = getAssocArray('AttributeType','PK_AttributeType','PK_AttributeType',$mediadbADO,'');
+		foreach($attributeTypes AS $type){
+			if($_SESSION['filter'] == 'filter_attribute_'.$type){
+				$filter_where = " AND".$filter_where_negator."`File`.`PK_File` IN 
+						(SELECT `PK_File` 
+							FROM `File`
+							LEFT JOIN `File_Attribute` ON `File_Attribute`.`FK_File` = `File`.`PK_File`
+							LEFT JOIN `Attribute` ON `File_Attribute`.`FK_Attribute` = `Attribute`.`PK_Attribute`
+							WHERE `Attribute`.`FK_AttributeType` = '".$type."') ";
+			}
+		}
+		if($_SESSION['filter'] == 'filter_coverart') {
+			$filter_having = " HAVING `picsNo` ".$filter_having_negator."= '0' ";
+		}
+	} 
+	
 	$queryDBFiles='
-		SELECT DISTINCT File.*,count(FK_Picture) AS picsNo
-		FROM File 
-		LEFT JOIN Picture_File ON FK_File=PK_File
-		WHERE (Path="'.addslashes($path).'" OR Path="'.addslashes($path).'/'.'") AND Filename IN ("'.join('","',array_map('addslashes',$physicalFiles)).'")
-		GROUP BY PK_File';
+		SELECT DISTINCT `File`.*, COUNT(`Picture_File`.`FK_Picture`) AS "picsNo"
+		FROM `File` 
+		LEFT JOIN `Picture_File` ON `Picture_File`.`FK_File` = `File`.`PK_File`
+		WHERE (Path="'.addslashes($path).'" OR Path="'.addslashes($path).'/'.'") AND Filename IN ("'.join('","',array_map('addslashes',$physicalFiles)).'")'.$filter_where.'
+		GROUP BY PK_File '.$filter_having;
 
 	$rs=$mediadbADO->_Execute($queryDBFiles);
 	$dbFiles=array();
@@ -364,6 +403,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	$navBar=join(' | ',$navBarArray);
 	
 	$out='<table width="100%" cellpadding="2" cellspacing="0">';
+	$itemCounter = 0;
 	foreach($physicalFiles as $physicalkey => $filename){
 		if((in_array($filename,$dbFiles))){
 			$key=array_search($filename,$dbFiles);
@@ -385,12 +425,12 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 			}
 		}
 		$coverArtIcon=(@$dbPicsNoFiles[$key]!=0)?'&nbsp;<img src="include/images/coverart.gif" border="0" style="vertical-align:middle;">':'';
-		/* only display item if show_wocoverart is not set or the file does not have coverart attached */
-		if($_SESSION['show_wocoverart'] == 0 
-			|| ($_SESSION['show_wocoverart'] == 1 
-				&&  $coverArtIcon == '')) {
+		/* only display items according to filter rules */
+		if($_SESSION['show_woattribute'] == 0 
+			|| ($_SESSION['show_woattribute'] == 1 &&  @$inDB==1)) {
+					$itemCounter++;
     		    $out.='	
-			    <tr class="'.(($physicalkey%2==0)?'':'alternate_back').'">
+			    <tr class="'.(($itemCounter%2==0)?'':'alternate_back').'">
 				    <td '.(((@$inDB==1)?'colspan="2"':'')).'>'.((@$inDB==1)?'<img src=include/images/sync.gif border=0 style="vertical-align:middle;">':'<img src=include/images/disk.gif border=0 style="vertical-align:middle;">').$coverArtIcon.' '.((@$inDB==1)?'<a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a> ':'<B>'.$filename.'</B> '.$addToDB).'</td>
 			    </tr>';
 		    if(@$inDB==1){
@@ -418,7 +458,7 @@ function physicalFilesList($path,$allPhysicalFiles,$mediadbADO){
 	}
 	$out.='
 		<tr class="tablehead">
-			<td><B>Files per page:</B> '.pulldownFromArray($noPagesArray,'media_files_per_page',$_SESSION['media_files_per_page'],'onChange="document.mainMediaFilesSync.action.value=\'form\';document.mainMediaFilesSync.submit();"','key','').'</td>
+			<td><B>Files per page:</B> '.pulldownFromArray($noPagesArray,'media_files_per_page',$_SESSION['media_files_per_page'],'onChange="document.mainMediaFilesSync.action.value=\'form\';document.mainMediaFilesSync.submit();"','key','').', Displaying '.$itemCounter.' Items</td>
 			<td align="right">'.$navBar.'</td>
 		</tr>
 		<tr>
