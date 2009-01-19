@@ -75,6 +75,7 @@ public:
 string g_sPackages, g_sPackages_Exclude, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date, g_sBaseVersion, g_sReplacePluto, g_sOutputPath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
+int g_iCoresToUse=1; 
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false, g_bDontTouchDB = false, g_bSetVersion = true, g_bOnlyCompileIfNotFound = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
@@ -254,6 +255,10 @@ int main(int argc, char *argv[])
 		case 'V':
 			g_bSetVersion = false;
 			break;
+                case 'j': 
+			// if (!verify_next(argv, optnum, argc, "-j")) { bError=true; break; } 
+			g_iCoresToUse = atoi(argv[++optnum]); 
+			break; 
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -264,7 +269,7 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "MakeRelease, v." << VERSION << endl
-			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-K Exclude Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl
+			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-j] [-k Packages] [-K Exclude Packages] [-m Manufacturers] [-o Distro] [-a] [-f Defines]" << endl 
 			<< "\t[-d]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
@@ -726,6 +731,20 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 	return true;
 }
 
+string MakeCommandMods(string in) 
+{
+	string out = in; 
+	if (g_iCoresToUse > 1) 
+	{
+		out = StringUtils::Replace(out, "make clean bin", "make clean ; make bin"); 
+		out = StringUtils::Replace(out, "make clean lib", "make clean ; make lib"); 
+		stringstream sstr; 
+		sstr << g_iCoresToUse; 
+		out = StringUtils::Replace(out, "make", "make -j" + sstr.str()); 
+	}
+	return out; 
+}
+
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	/*
@@ -806,21 +825,23 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			string File = pRow_Package_Directory_File->File_get();
 			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
 			{
-				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
+				string tmp = pRow_Package_Directory_File->MakeCommand_get(); 
+				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + tmp + " Continue?",false) ) 
 					return false;
 #ifndef WIN32
 				system(("mkdir -p " + sInputPath).c_str());
 #endif
 				chdir(sInputPath.c_str());
-				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
+				tmp = MakeCommandMods(tmp); 
+				cout << "Package: " << pRow_Package->PK_Package_get() << " Executing: " << tmp << " from dir: " << sInputPath << endl; 
 				if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sInputPath + "/" + File) )
 					cout << "Skipping compilation of package: " << pRow_Package->PK_Package_get() << endl;
-				else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+				else if( !g_bSimulate && system(tmp.c_str()) ) 
 				{
 					cout << "Description: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->FK_Package_getrow()->Description_get() << endl;
 					cout << "Path: " << pRow_Package_Directory_File->FK_Package_Directory_getrow()->Path_get() << endl;
-					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
-					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+					cout << tmp << " ***FAILED***" << endl; 
+					cout << "Error: " << tmp << " failed!" << endl; 
 					if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 						return false;
 				}
@@ -1185,9 +1206,10 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 				continue;
 
+			string tmp = pRow_Package_Directory_File->MakeCommand_get(); 
 			if( g_bInteractive )
 			{
-				cout << "About to execute make: " << pRow_Package_Directory_File->MakeCommand_get() << endl
+				cout << "About to execute make: " << tmp << endl 
 					<< "In directory: " << sSourceDirectory << endl;
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
@@ -1196,18 +1218,19 @@ cout << "Doing snr on " << sSourceDirectory << "/" << *it << endl;
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 
-			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
-			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			tmp = MakeCommandMods(tmp); 
+			fstr_compile << tmp << endl; 
+			cout << "Package: " << pRow_Package->FK_Package_Sourcecode_get() << " Executing: " << tmp << endl; 
 			if( g_bOnlyCompileIfNotFound && FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) )
 				cout << "Skipping compilation of package: " << pRow_Package->FK_Package_Sourcecode_get() << endl;
-			else if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
+			else if( !g_bSimulate && system(tmp.c_str()) ) 
 			{
-				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
-				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
+				cout << tmp << " ***FAILED***" << endl; 
+				cout << "Error: " << tmp << " failed!" << endl; 
 				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
-			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
+			cout << tmp << " succeeded" << endl; 
 
 			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
