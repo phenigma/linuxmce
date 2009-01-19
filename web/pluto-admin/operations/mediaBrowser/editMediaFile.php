@@ -657,7 +657,7 @@ function getFilesRecursively($fileID, $mediadbADO) {
 		$topFilePath = $row['Path'];
 		
 		// get all files below the selected one and put their ID into an array
-		$res = $mediadbADO->Execute("SELECT `PK_File` FROM `File` WHERE `Path` LIKE '".$topFilePath."/".$topFileName."%'");
+		$res = $mediadbADO->Execute("SELECT `PK_File` FROM `File` WHERE `Path` LIKE ".escape($topFilePath."/".$topFileName."%"));
 		while($row = $res->FetchRow()) {
 				$myFiles[] = $row['PK_File'];
 		}
