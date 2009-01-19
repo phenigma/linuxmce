@@ -22,7 +22,9 @@
 #include "PlutoUtils/Other.h"
 #include "DCERouter.h"
 
-#include "../include/version.cpp"
+/*#include "../include/version.cpp" */
+
+#define VERSION "2.0.44.12345678"
 
 using namespace DCE;
 
