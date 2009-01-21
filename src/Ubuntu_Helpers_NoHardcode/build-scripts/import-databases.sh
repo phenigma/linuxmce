@@ -102,7 +102,7 @@ function import_databases () {
 	import_dbdump lmce_game "$dbdump_lmce_game"
 
 #	rm -f "$dbdump_main_sqlcvs" "$dbdump_myth_sqlcvs" "$dbdump_pluto_media" "$dbdump_pluto_security" "$dbdump_pluto_telecom"
-#	rm -rf "${dbdump_dir}"
+	rm -rf "${dbdump_dir}"
 
 }
 
