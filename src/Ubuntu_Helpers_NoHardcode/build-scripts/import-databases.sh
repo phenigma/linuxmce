@@ -28,7 +28,7 @@ function get_dbdump
 
 	DisplayMessage "Getting a sqldump of ${dbdump_name}"
 
-#	[ ! -e "${dbdump_file}.prep" ] && #ZaercTempHack
+	[ ! -e "${dbdump_file}.prep" ] && #ZaercTempHack
 	mysqldump --compress --skip-extended-insert $SqlCvsCred "${dbdump_name}" > "${dbdump_file}.prep"
 
 	cp -f "${dbdump_file}.prep" "${dbdump_file}"
@@ -57,6 +57,7 @@ function import_databases () {
 	local dbdump_pluto_media="${dbdump_dir}/pluto_media.sql"
 	local dbdump_pluto_security="${dbdump_dir}/pluto_security.sql"
 	local dbdump_pluto_telecom="${dbdump_dir}/pluto_telecom.sql"
+	local dbdump_lmce_game="${dbdump_dir}/lmce_game.sql"
 
 	mkdir -p "${dbdump_dir}"
 
@@ -67,7 +68,7 @@ function import_databases () {
 	get_dbdump pluto_media "$dbdump_pluto_media"
 	get_dbdump pluto_security "$dbdump_pluto_security"
 	get_dbdump pluto_telecom "$dbdump_pluto_telecom"
-
+	get_dbdump lmce_game "$dbdump_lmce_game"
 
 	# Run search and replace over the db dumps
 	DisplayMessage "Running Search'n'Replace on the sqldumps (MakeRelase_PrepFiles)"
@@ -96,6 +97,9 @@ function import_databases () {
 
 	# pluto_telecom
 	import_dbdump pluto_telecom "$dbdump_pluto_telecom"
+
+	# lmce_game
+	import_dbdump lmce_game "$dbdump_lmce_game"
 
 #	rm -f "$dbdump_main_sqlcvs" "$dbdump_myth_sqlcvs" "$dbdump_pluto_media" "$dbdump_pluto_security" "$dbdump_pluto_telecom"
 #	rm -rf "${dbdump_dir}"
