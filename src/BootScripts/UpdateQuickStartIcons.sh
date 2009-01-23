@@ -1,5 +1,7 @@
 #!/bin/bash
-
+	
+. /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 PIXDIR="/home/quick_start_icons"
 
 if [[ ! -d $PIXDIR ]]; then
