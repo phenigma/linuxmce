@@ -66,6 +66,7 @@
 #include "pluto_main/Table_Users.h"
 #include "pluto_main/Define_Screen.h"
 #include "pluto_main/Define_Icon.h"
+#include "pluto_main/Define_RoomType.h"
 
 #include "CommandGroupArray.h"
 
@@ -77,8 +78,9 @@ void UpdateEntArea::AddDefaultMediaScenarios()
 {
 	for(map<int, LevelOfMedia >::iterator it=m_mapEnt_Area_Auto_Media.begin();it!=m_mapEnt_Area_Auto_Media.end();++it)
 	{
+		Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(it->first);
 		Row_EntertainArea *pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->GetRow(it->first);
-		if( pRow_EntertainArea )
+		if( pRow_EntertainArea && pRow_Room->FK_RoomType_get()!= ROOMTYPE_Unmanaged_CONST)
 			AddDefaultMediaScenarios(pRow_EntertainArea);
 	}
 }

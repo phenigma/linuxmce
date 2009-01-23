@@ -123,7 +123,7 @@ void UpdateEntArea::AddDefaultLightingScenarios()
 	for(map<int, pair<LevelOfMedia, bool> >::iterator it=m_mapRoom_Media.begin();it!=m_mapRoom_Media.end();++it)
 	{
 		Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(it->first);
-		if( pRow_Room )
+		if( pRow_Room && pRow_Room->FK_RoomType_get()!=ROOMTYPE_Unmanaged_CONST)
 			AddDefaultLightingScenarios(pRow_Room);
 	}
 }
