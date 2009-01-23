@@ -872,6 +872,9 @@
 #define COMMAND_iTV_CONST 963
 #define COMMAND_Channel_up_CONST 964
 #define COMMAND_Channel_down_CONST 965
+#define COMMAND_Set_Polling_State_CONST 966
+#define COMMAND_Add_Node_CONST 967
+#define COMMAND_Remove_Node_CONST 968
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
