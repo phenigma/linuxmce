@@ -35,7 +35,7 @@ amixer set CD playback off
 # amixer set CD capture1
 # don't ask me why 'capture1' turns on cd capture...
 
-#/usr/pluto/bin/sqlCVS -R 4000 -H sqlcvs.linuxmce.org -C 3 -n $PLUTO_DB_CRED -D pluto_myth -a -U anonymous~anonymous -r myth -e checkin
+#/usr/pluto/bin/sqlCVS -R 4000 -H schema.linuxmce.org -C 3 -n $PLUTO_DB_CRED -D pluto_myth -a -U anonymous~anonymous -r myth -e checkin
 if [[  "$DBPassword" != "" ]] ;then
 	mysql_command="mysql -s -B -h $DBHostName -P $MySqlPort -u $DBUserName -p$DBPassword $DBName";
 else
