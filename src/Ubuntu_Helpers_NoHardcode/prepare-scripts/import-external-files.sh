@@ -10,8 +10,8 @@ echo "**************************************************************************
 rsync_skin_host="10.0.2.3"
 rsync_media_host="10.0.2.3"
 
-http_skin_host="www.linuxmce.org"
-http_media_host="www.linuxmce.org"
+http_skin_host="download.linuxmce.org"
+http_media_host="download.linuxmce.org"
 
 # needs a better name
 base_dir=/home/samba/www_docs
