@@ -694,7 +694,7 @@ function setAttributes($PK_File, $attributes, $mediadbADO) {
 		$mediadbADO->Execute("INSERT INTO `File_Attribute` (`FK_File`, `FK_Attribute`) VALUES ('".$PK_File."', '".$attribute."')");
 	}
 	if(isset($attributes['LongAttribute'])) foreach($attributes['LongAttribute'] as $attribute) {
-		$mediadbADO->Execute("INSERT INTO `LongAttribute` (`FK_File`, `FK_AttributeType`, `Text`) SELECT '".$PK_File."', `FK_AttributeType`, `Text` FROM `LongAttribute` WHERE `PK_LongAttribute` = '".$attribute."'")
+		$mediadbADO->Execute("INSERT INTO `LongAttribute` (`FK_File`, `FK_AttributeType`, `Text`) SELECT '".$PK_File."', `FK_AttributeType`, `Text` FROM `LongAttribute` WHERE `PK_LongAttribute` = '".$attribute."'");
 	}
 	if(isset($attributes['Picture']))  foreach($attributes['Picture'] as $attribute) {
 		$mediadbADO->Execute("DELETE FROM `Picture_File` WHERE `FK_File` = '".$PK_File."' AND `FK_Picture` = '".$attribute."'");
