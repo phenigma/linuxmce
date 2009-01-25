@@ -1,0 +1,72 @@
+#!/bin/bash
+
+VERSION=0710
+PACKAGE_VERSION=05
+OS=os2008
+HOME=maemo-linuxmce
+DEST=build
+SRC=src
+
+rm -rf ${DEST}
+mkdir ${DEST}
+mkdir ${DEST}/usr
+cp -r ${SRC}/share ${DEST}/usr
+cp ${SRC}/debian/* ${DEST}
+
+
+export SNR_CPPFLAGS="-DMAEMO_NOKIA770"
+export SNR_LDFLAGS=""
+
+cd ../		
+echo "Cleaning previous build"
+rm -f lib/* bin/*
+
+for TARGET in PlutoUtils SerializeClass SDL_Helpers DCE
+do
+	echo "Building ${TARGET} ..."
+	cd ${TARGET}
+	make clean && make
+	cd ../
+done
+
+echo "Buiding the Orbiter ..."
+cd Orbiter
+make clean && make bin
+
+echo "Finished with building of the Orbiter. ..."
+
+cd ../${HOME}
+
+mkdir $DEST/usr/lib
+cp ../lib/*.so ${DEST}/usr/lib
+mkdir $DEST/usr/bin
+cp ../bin/Orbiter ${DEST}/usr/bin
+
+export SNR_CPPFLAGS="-DOS2008"
+
+make clean && make lmce
+
+cp linuxmceorbiter ${DEST}/usr/bin
+
+strip ${DEST}/usr/bin/* ${DEST}/usr/lib/* 
+
+cd ${DEST}
+
+touch md5sum
+for FILE in `find usr`; do
+	if [ -f $FILE ] 
+	then
+		md5sum $FILE >> md5sum
+	fi
+done
+
+for VAL in OS VERSION PACKAGE_VERSION
+do
+	eval RES="$"${VAL};
+	sed "s/%%${VAL}%%/${RES}/" control > control
+done
+
+tar vzcf data.tar.gz usr/
+tar vzcf control.tar.gz control md5sum postinst
+ar q lmceorbiter-${OS}-${VERSION}-${PACKAGE_VERSION}_armel.deb  debian-binary control.tar.gz data.tar.gz
+
