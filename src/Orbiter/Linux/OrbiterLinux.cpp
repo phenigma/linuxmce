@@ -442,6 +442,13 @@ void OrbiterLinux::Destroy()
 
 void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,Message *pMessage)
 {
+#ifdef MAEMO_NOKIA770
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::CMD_Activate_PC_Desktop - exit for Maemo Nokia");
+#endif
+
+	OnQuit();
+#else	
 	PLUTO_SAFETY_LOCK(sm, m_ScreenMutex);
 
 	static bool bInternalState_DesktopActivated = false;
@@ -484,6 +491,7 @@ void OrbiterLinux::CMD_Activate_PC_Desktop(bool bTrueFalse,string &sCMD_Result,M
 		//disable repeated keys
 		system("/usr/bin/X11/xset r off"); 
 	}
+#endif	
 }
 
 void OrbiterLinux::CMD_Activate_Window(string sWindowName,string &sCMD_Result,Message *pMessage)

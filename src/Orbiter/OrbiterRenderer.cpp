@@ -1231,7 +1231,7 @@ void OrbiterRenderer::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbi
 #endif
 
 //NOT hidden on WIN32/WINCE
-#if defined(WIN32)
+#if defined(WIN32) || defined(MAEMO_NOKIA770)
 	if(pObj->m_iBaseObjectID == DESIGNOBJ_objExitController2_CONST)
 		pObj->m_bHidden = false;
 #endif

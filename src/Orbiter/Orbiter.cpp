@@ -828,6 +828,12 @@ void Orbiter::ScreenSaver( void *data )
 		m_pDesignObj_Orbiter_ScreenSaveMenu ? m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID.c_str() : "*NONE*");
 
 #endif
+
+#ifdef MAEMO_NOKIA770
+	// To avoid start screen saver on the Maemo Orbiter			
+	m_bBypassScreenSaver = true;
+#endif
+	
 	if( m_bBypassScreenSaver )
 		return;
 
@@ -1920,6 +1926,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 				pObj->m_rBackgroundPosition.Width - 2 * i - 2, pObj->m_rBackgroundPosition.Height - 2 * i - 2,
 				i < 2 ? PlutoColor::Blue() : PlutoColor::White()
 			);
+#ifdef DEBUG
+	LoggerWrapper::GetInstance()->Write(LV_STATUS, "Orbiter::SelectObject\n");
+#endif
+
 }
 //------------------------------------------------------------------------
 /*
