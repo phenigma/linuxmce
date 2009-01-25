@@ -237,6 +237,12 @@
 #define COMMAND_CLASS_MTP_WINDOW_COVERING		0x51
 #define COMMAND_CLASS_MULTI_INSTANCE_ASSOCIATION	0x8E
 #define COMMAND_CLASS_MULTI_INSTANCE			0x60
+
+#define MULTI_INSTANCE_VERSION				0x01
+#define MULTI_INSTANCE_GET				0x04
+#define MULTI_INSTANCE_CMD_ENCAP			0x6
+#define MULTI_INSTANCE_REPORT				0x05
+
 #define COMMAND_CLASS_NO_OPERATION			0x00
 #define COMMAND_CLASS_NODE_NAMING			0x77
 #define COMMAND_CLASS_NON_INTEROPERABLE			0xf0
@@ -457,6 +463,9 @@ namespace ZWApi {
 
 	// read meter
 	bool zwMeterGet(int node_id);
+
+	void zwMultiInstanceGet(int node_id, int command_class);
+	void zwRequestMultilevelSensorReportInstance(int node_id,int instance);
     };
 
 }

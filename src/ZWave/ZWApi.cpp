@@ -2021,3 +2021,22 @@ bool ZWApi::ZWApi::zwMeterGet(int node_id) {
 
 }
 
+void ZWApi::ZWApi::zwMultiInstanceGet(int node_id, int command_class){
+
+        char mybuf[1024];
+
+        mybuf[0] = FUNC_ID_ZW_SEND_DATA;
+        mybuf[1] = node_id;
+        mybuf[2] = 2; // length of command
+        mybuf[3] = COMMAND_CLASS_MULTI_INSTANCE;
+        mybuf[4] = MULTI_INSTANCE_GET;
+        mybuf[5] = command_class;
+        mybuf[6] = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_AUTO_ROUTE;
+        sendFunction( mybuf , 7, REQUEST, 1);
+
+
+}
+void ZWApi::ZWApi::zwRequestMultilevelSensorReportInstance(int node_id,int instance){
+
+}
+
