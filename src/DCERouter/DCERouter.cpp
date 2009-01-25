@@ -456,13 +456,16 @@ void Router::RegisterAllPlugins()
 	}
 	
 	// Repeat and see if we can find any plugins to load dynamically
+	// this is a method to "sneak" in plugins without device templates
+	// as this caused troubles with some non-plugin libs we now only search in a
+	// specific directory ("plugin-inject") for *.so/dll files
 	list<string> listFiles;
 #ifdef WIN32
-	FileUtils::FindFiles(listFiles,".","*.dll",false,true);
-	FileUtils::FindFiles(listFiles,"/pluto/bin","*.dll",false,true);
+	// FileUtils::FindFiles(listFiles,".","*.dll",false,true);
+	FileUtils::FindFiles(listFiles,"/pluto/bin/plugin-inject","*.dll",false,true);
 #else
-	FileUtils::FindFiles(listFiles,".","*.so",false,true);
-	FileUtils::FindFiles(listFiles,"/usr/pluto/bin","*.so",false,true);
+	// FileUtils::FindFiles(listFiles,".","*.so",false,true);
+	FileUtils::FindFiles(listFiles,"/usr/pluto/bin/plugin-inject","*.so",false,true);
 #endif
 
 	int PlugInNumber=0;  // How many plug-ins we're loading dynamically
