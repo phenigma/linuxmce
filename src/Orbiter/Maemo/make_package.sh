@@ -3,7 +3,7 @@
 VERSION=0710
 PACKAGE_VERSION=05
 OS=os2008
-HOME=maemo-linuxmce
+HOME=Maemo
 DEST=build
 SRC=src
 
