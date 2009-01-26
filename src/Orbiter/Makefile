@@ -34,7 +34,12 @@ LDFLAGS += -lmysqlclient_r
 CXXFLAGS += -g -O0
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DENABLE_MOUSE_BEHAVIOR -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen -I$(ROOT)/SDL_Helpers -DHID_REMOTE
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lGL -lXrender -lGLU -lSDL_Helpers -lhid
+XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lXrender -lSDL_Helpers 
+
+# Remove unnessesary libraries for Maemo Orbiter
+ifneq($(SNR_CPPFLAGS))
+XTRALDLIBS += -lhid -lGL -lGLU
+endif
 
 # wmctrl wrapper
 CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
@@ -47,7 +52,6 @@ sources += \
 	../utilities/linux/wrapper/wrapper_x11.cpp \
 	../utilities/linux/wrapper/image_file.cpp \
 	Linux/win_list_manager.cpp \
-	Linux/HIDInterface.cpp \
 	Linux/OrbiterRenderer_Linux.cpp \
         Linux/WindowContext.cpp \
 	DesignObj_Data.cpp \
@@ -97,6 +101,12 @@ sources += \
 	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp\
 	../LIRC_DCE/IRReceiverBase.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp \
+
+
+# Remove unnessesary libraries for Maemo Orbiter
+ifneq($(SNR_CPPFLAGS))
+sources += Linux/HIDInterface.cpp;
+endif
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
