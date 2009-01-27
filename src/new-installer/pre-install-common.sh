@@ -2,7 +2,8 @@
 
 
 DISTRO="$(lsb_release -c -s)"
-COMPOS="lmce-alpha1 lmce-alpha1-updates"
+# COMPOS="lmce-alpha1 lmce-alpha1-updates"
+COMPOS="lmce-alpha-latest lmce-alpha-latest-updates"
 
 LOCAL_REPO_BASE=/usr/pluto/deb-cache
 LOCAL_REPO_DIR=./
