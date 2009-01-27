@@ -98,14 +98,14 @@ sources += \
 	../CreateDevice/UserUtils.cpp \
 	$(ROOT)/Splitter/TextSplitter.cpp \
 	$(ROOT)/Splitter/TextWrapper.cpp \
-	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp\
+	Linux/X3DButton.cpp Linux/X3DWindow.cpp Linux/XProgressWnd.cpp Linux/XPromptUser.cpp \
 	../LIRC_DCE/IRReceiverBase.cpp \
 	$(ROOT)/utilities/linux/transparency/transparency.cpp \
 
 
 # Remove unnessesary libraries for Maemo Orbiter
 #ifneq (,$(findstring MAEMO_NOKIA770, $(SNR_CPPFLAGS)))
-sources += Linux/HIDInterface.cpp;
+sources += Linux/HIDInterface.cpp
 #endif
 
 #<-dceag-mf-b->
