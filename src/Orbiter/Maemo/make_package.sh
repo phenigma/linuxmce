@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VERSION=0710
-PACKAGE_VERSION=05
+VERSION=0810
+PACKAGE_VERSION=alpha01
 OS=os2008
 HOME=Maemo
 DEST=build
@@ -17,7 +17,7 @@ cp ${SRC}/debian/* ${DEST}
 export SNR_CPPFLAGS="-DMAEMO_NOKIA770"
 export SNR_LDFLAGS=""
 
-cd ../		
+cd ../../		
 echo "Cleaning previous build"
 rm -f lib/* bin/*
 
@@ -29,18 +29,21 @@ do
 	cd ../
 done
 
+echo "Curr dir is `pwd`" ...
+
 echo "Buiding the Orbiter ..."
+
 cd Orbiter
 make clean && make bin
 
 echo "Finished with building of the Orbiter. ..."
 
-cd ../${HOME}
+cd ${HOME}
 
 mkdir $DEST/usr/lib
-cp ../lib/*.so ${DEST}/usr/lib
+cp ../../lib/*.so ${DEST}/usr/lib
 mkdir $DEST/usr/bin
-cp ../bin/Orbiter ${DEST}/usr/bin
+cp ../../bin/Orbiter ${DEST}/usr/bin
 
 export SNR_CPPFLAGS="-DOS2008"
 
@@ -66,7 +69,8 @@ do
 	sed "s/%%${VAL}%%/${RES}/" control > control
 done
 
-tar vzcf data.tar.gz usr/
+tar vzcf data.tar.gz --exclude=".svn" usr/
 tar vzcf control.tar.gz control md5sum postinst
 ar q lmceorbiter-${OS}-${VERSION}-${PACKAGE_VERSION}_armel.deb  debian-binary control.tar.gz data.tar.gz
 
+echo "Maemo Orbiter package is build"
