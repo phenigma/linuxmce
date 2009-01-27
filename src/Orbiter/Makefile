@@ -37,9 +37,9 @@ LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS += -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE -lSDL_gfx -lXtst -lXext -lXrender -lSDL_Helpers 
 
 # Remove unnessesary libraries for Maemo Orbiter
-ifneq($(SNR_CPPFLAGS))
+#ifneq (,$(findstring MAEMO_NOKIA770, $(SNR_CPPFLAGS)))
 XTRALDLIBS += -lhid -lGL -lGLU
-endif
+#endif
 
 # wmctrl wrapper
 CPPFLAGS += -I/usr/X11R6/include -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
@@ -104,9 +104,9 @@ sources += \
 
 
 # Remove unnessesary libraries for Maemo Orbiter
-ifneq($(SNR_CPPFLAGS))
+#ifneq (,$(findstring MAEMO_NOKIA770, $(SNR_CPPFLAGS)))
 sources += Linux/HIDInterface.cpp;
-endif
+#endif
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
