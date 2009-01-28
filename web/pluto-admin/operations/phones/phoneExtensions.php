@@ -20,7 +20,7 @@ function phoneExtensions($output,$dbADO) {
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		
 		<h3 align="center">Phone Extensions</h3>
-		<p align="center">Pluto compatible telephones are normally plug-and-play.  Just plug them into any jack--and they will be added to this page automatically.</p>
+		<p align="center">LinuxMCE compatible telephones are normally plug-and-play.  Just plug them into any jack--and they will be added to this page automatically.</p>
 		<form action="index.php" method="POST" name="phoneExtensions">
 			<input type="hidden" name="section" value="phoneExtensions">
 			<input type="hidden" name="action" value="update">
