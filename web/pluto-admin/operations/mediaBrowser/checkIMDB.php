@@ -247,7 +247,7 @@ function getScanResults($fileID,$mediadbADO){
 					</tr>					
 					<tr>
 						<td><input type="checkbox" name="includeAttributes" value="1" checked></td>
-						<td>Include Amazon attributes</td>
+						<td>Include IMDB attributes</td>
 					</tr>
 				</table>			
 			<input type="submit" class="button" name="syncAttributes" value="Get cover art"> <input type="button" class="button" name="syncAttributes" value="Back to file" onClick="self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'\'"></td>
