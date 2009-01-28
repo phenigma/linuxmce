@@ -36,7 +36,7 @@
 				<td colspan="3">
 					<input type="radio" name="opt" value="3" checked> No, this device doesn\'t require programming.  Examples: A/V equipment controlled by infrared, remote controls, and virtual devices are children of a dce device, like security sensors, light switches, etc.<br>
 					<input type="radio" name="opt" value="1"> I\'m going to write c++ code, or use another language that can handle socket communications.  Examples: Software media players, phone systems, Java/Perl applications, etc.<br>
-					<input type="radio" name="opt" value="2"> It\'s a simple, generic serial device controlled by RS232, Ethernet or USB, which you\'ll control with Pluto\'s GSD and embedded Ruby snippets (very easy).  Examples: Lighting control, alarm panels, surveillance cameras, thermostats, weather stations, a/v equipment with RS232 ports, etc.<br>
+					<input type="radio" name="opt" value="2"> It\'s a simple, generic serial device controlled by RS232, Ethernet or USB, which you\'ll control with LinuxMCE\'s GSD and embedded Ruby snippets (very easy).  Examples: Lighting control, alarm panels, surveillance cameras, thermostats, weather stations, a/v equipment with RS232 ports, etc.<br>
 				</td>
 			</tr>			
 
