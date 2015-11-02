@@ -7,5 +7,4 @@ clean:
 
 
 install:
-	mkdir -p $(DESTDIR)/home/mamedata/
-	cp -avR ./* $(DESTDIR)/home/mamedata || true
+	find . -not -path "./debian*" -exec install -m644 -D {} $(DESTDIR)/{} \;

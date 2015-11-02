@@ -1,4 +1,10 @@
-lmce-mame-metadata (2.0.0.47.9~lmce1) precise; urgency=medium
+lmce-mame-metadata (2.0.0.47.9~lmce1) unstable; urgency=medium
+
+  * Ensure to not copy debian dir to pkg
+
+ -- developers@linuxmce.org <developers@linuxmce.org>  Mon, 02 Nov 2015 13:06:52 -0500
+
+lmce-mame-metadata (2.0.0.47.9~lmce1) unstable; urgency=medium
 
   * Initial release.
   * MAME metadata package
