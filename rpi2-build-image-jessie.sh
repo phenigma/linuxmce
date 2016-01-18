@@ -27,7 +27,7 @@ DATE=$(date -I)
 RELEASE=jessie
 BASEDIR=./${RELEASE}
 BUILDDIR=${BASEDIR}/build
-#PROXY="http://10.10.42.99:3142/"
+PROXY="http://10.10.42.99:3142/"
 
 # Don't clobber an old build
 if [ -e "$BUILDDIR" ]; then
@@ -120,7 +120,7 @@ DEBIAN_FRONTEND=noninteractive chroot $R apt-get -y install software-properties-
 DEBIAN_FRONTEND=noninteractive chroot $R apt-get update
 
 # Standard packages
-DEBIAN_FRONTEND=noninteractive chroot $R apt-get -y install initramfs-tools raspberrypi-bootloader
+DEBIAN_FRONTEND=noninteractive chroot $R apt-get -y install initramfs-tools raspberrypi-bootloader libraspberrypi0
 
 # Kernel installation
 # Install flash-kernel last so it doesn't try (and fail) to detect the
@@ -132,6 +132,8 @@ DEBIAN_FRONTEND=noninteractive FLASH_KERNEL_SKIP="true" chroot $R apt-get -y ins
 DEBIAN_FRONTEND=noninteractive FLASH_KERNEL_SKIP="true" chroot $R apt-get -y --allow-unauthenticated install lmce-disked-md-rpi2
 
 DEBIAN_FRONTEND=noninteractive FLASH_KERNEL_SKIP="true" chroot $R apt-get -y --allow-unauthenticated install lmce-md-meta
+
+DEBIAN_FRONTEND=noninteractive FLASH_KERNEL_SKIP="true" chroot $R apt-get -y --allow-unauthenticated install lmce-omx-player lmce-cec-adaptor lmce-squeezeslave
 
 rm -f $R/usr/pluto/deb-cache/raspbian-jessie-armhf/*
 #cp -av $R/usr/pluto/deb-cache/Packages* $R/usr/pluto/deb-cache/raspbian-jessie-armhf/
